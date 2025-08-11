@@ -1,6 +1,3 @@
-Segue um modelo de README inicial com checklist para o seu repositório, baseado no enunciado do trabalho que você enviou:
-
----
 
 # 🎨 Paint em OpenGL (Trabalho de Computação Gráfica - UFCA)
 
@@ -82,8 +79,45 @@ Na apresentação, será necessário:
 * **Entrega:** 24/08
 * **Apresentações:** A partir de 26/08
   ⏳ Tempo de apresentação: **20 a 30 minutos**
-
 ---
-
-Se quiser, posso já complementar com **estrutura sugerida de diretórios e arquivos**, incluindo `main.c`, arquivos de cabeçalho e módulos separados para desenho, seleção, transformações e persistência.
-Quer que eu já faça essa estrutura inicial?
+## Como rodar  (linux, no windows tem que ver se é do mesmo jeito)
+make → compila o projeto.
+make run → compila e executa.
+---
+## Estrutura
+paint-opengl/
+│── src/
+│   ├── main.c                 # Função principal (loop do programa, inicialização)
+│   ├── core/                  # Lógica principal do programa
+│   │   ├── draw.c              # Funções de desenho
+│   │   ├── events.c            # Tratamento de eventos (mouse, teclado)
+│   │   ├── transform.c         # Funções de transformação geométrica
+│   │   ├── animation.c         # Funções de animação
+│   │   └── file_io.c           # Funções de salvar/carregar
+│   ├── shapes/                # Objetos geométricos
+│   │   ├── point.c             # Funções para ponto
+│   │   ├── line.c              # Funções para linha
+│   │   └── polygon.c           # Funções para polígono
+│   ├── utils/                 # Funções auxiliares
+│   │   ├── matrix.c            # Operações com matrizes
+│   │   ├── vector.c            # Operações com vetores
+│   │   └── color.c             # Manipulação de cores
+│
+├── include/                   # Cabeçalhos (.h)
+│   ├── draw.h
+│   ├── events.h
+│   ├── transform.h
+│   ├── animation.h
+│   ├── file_io.h
+│   ├── point.h
+│   ├── line.h
+│   ├── polygon.h
+│   ├── matrix.h
+│   ├── vector.h
+│   └── color.h
+│
+├── assets/                    # Imagens, fontes ou outros recursos (se necessário)
+│
+├── Makefile                   # Compilação e execução
+├── README.md                  # Descrição do projeto
+└── .gitignore                 # Ignorar arquivos desnecessários
