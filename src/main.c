@@ -3,7 +3,6 @@
 
 void init(void) {
     glClearColor(1,1,1,0);
-
     glMatrixMode(GL_PROJECTION);
     gluOrtho2D(0, 200, 0, 200);
 
@@ -45,6 +44,7 @@ void display() {
 
     glFlush();
 }
+
 
 int main(int argc, char** argv) {
     glutInit(&argc, argv);

@@ -83,6 +83,7 @@ Na apresentação, será necessário:
 ## Como rodar  (linux, no windows tem que ver se é do mesmo jeito)
 make → compila o projeto.
 make run → compila e executa.
+make clean → apaga arquivos temporários para recompilar do zero.
 ---
 ## Estrutura
 paint-opengl/
@@ -115,6 +116,8 @@ paint-opengl/
 │   ├── matrix.h
 │   ├── vector.h
 │   └── color.h
+│
+├── drawings/  # arquivos gerados pelo progama para salvar o desenho
 │
 ├── assets/                    # Imagens, fontes ou outros recursos (se necessário)
 │

@@ -1,0 +1,19 @@
+# Arquivos objeto
+*.o
+
+# Executáveis compilados
+paint
+main
+
+# Pastas de compilação
+/build/
+/bin/
+/obj/
+
+# Arquivos temporários
+*~
+*.swp
+*.tmp
+
+# Arquivos gerados pelo Makefile
+*.dSYM
