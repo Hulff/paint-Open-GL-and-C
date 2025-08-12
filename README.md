@@ -85,7 +85,7 @@ make → compila o projeto.
 make run → compila e executa.
 make clean → apaga arquivos temporários para recompilar do zero.
 ---
-## Estrutura
+## Estrutura (exemplo depois ajustar para ficar igual com o projeto)
 paint-opengl/
 │── src/
 │   ├── main.c                 # Função principal (loop do programa, inicialização)

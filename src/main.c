@@ -1,61 +1,40 @@
 
 #include <GL/glut.h>
+#include "input.h"
 
-void init(void) {
-    glClearColor(1,1,1,0);
+// Definição das variáveis globais
+float r = 1.0f, g = 1.0f, b = 1.0f;
+
+void init(void)
+{
+    glClearColor(r, g, b, 0);
     glMatrixMode(GL_PROJECTION);
     gluOrtho2D(0, 200, 0, 200);
-
 };
-void display() {
+void display()
+{
+    glClearColor(r, g, b, 1.0f); // atualiza a cor de fundo sempre
     glClear(GL_COLOR_BUFFER_BIT);
-    
-    glColor3f(1, 0, 0);
-    glBegin(GL_POLYGON);
-        glVertex2i(30,50);
-        glVertex2i(30,150);
-        glVertex2i(170,150);
-        glVertex2i(170,50);
-    glEnd();
-
-
-    glColor3f(1, 1, 1);
-
-    glBegin(GL_POLYGON);
-        glVertex2i(70,90);
-        glVertex2i(70,110);
-        glVertex2i(130,110);
-        glVertex2i(130,90);
-    glEnd();
-
-    glColor3f(1, 1, 1);
-    
-    glBegin(GL_POLYGON);
-        glVertex2i(90,70);
-        glVertex2i(90,130);
-        glVertex2i(110,130);
-        glVertex2i(110,70);
-    glEnd();
-
-
-    
-
-
-
     glFlush();
 }
 
-
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 
     glutInitWindowSize(200, 200);
     glutInitWindowPosition(1300, 200);
-    glutCreateWindow("Tarefa CG boneco quadrado");
-    
+    glutCreateWindow("Paint 2025 atualizado Premium");
+
     init();
     glutDisplayFunc(display);
+
+    //leituras do usuario 
+    glutKeyboardFunc(teclado);
+    glutSpecialFunc(tecladoEspecial);
+    glutMouseFunc(mouse);
+
     glutMainLoop();
     return 0;
 }
