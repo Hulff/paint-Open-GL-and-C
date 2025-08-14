@@ -11,10 +11,10 @@ O objetivo é criar uma aplicação em **C com OpenGL** que permita desenhar, ma
 
 ### 1. Criação de Objetos Primários (5,0 pontos)
 
-* [ ] Criar **ponto**
+* [X] Criar **ponto**
 * [ ] Criar **segmento de reta**
 * [ ] Criar **polígono**
-* [ ] Permitir múltiplas criações de cada tipo
+* [X] Permitir múltiplas criações de cada tipo
 
 ### 2. Seleção e Exclusão de Objetos
 
@@ -89,12 +89,6 @@ make clean → apaga arquivos temporários para recompilar do zero.
 paint-opengl/
 │── src/
 │   ├── main.c                 # Função principal (loop do programa, inicialização)
-│   ├── core/                  # Lógica principal do programa
-│   │   ├── draw.c              # Funções de desenho
-│   │   ├── events.c            # Tratamento de eventos (mouse, teclado)
-│   │   ├── transform.c         # Funções de transformação geométrica
-│   │   ├── animation.c         # Funções de animação
-│   │   └── file_io.c           # Funções de salvar/carregar
 │   ├── shapes/                # Objetos geométricos
 │   │   ├── point.c             # Funções para ponto
 │   │   ├── line.c              # Funções para linha
