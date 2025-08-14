@@ -20,7 +20,7 @@ typedef struct
 } Shape;
 
 // Funções para manipular shapes
-Shape *createShape(ShapeType type, int num_points);
+Shape *createShape(int num_points);
 
 
 #endif

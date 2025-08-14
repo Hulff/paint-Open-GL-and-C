@@ -2,9 +2,12 @@
 #include <GL/glut.h>
 #include "input.h"
 #include "menu.h"
+#include "storage.h"
+#include "shape.h"
 
 // Definição das variáveis globais
 float r = 1.0f, g = 1.0f, b = 1.0f;
+ShapeStack *storage;
 
 void init(void)
 {
@@ -16,6 +19,27 @@ void display()
 {
     glClearColor(r, g, b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+    for (int i = 0; i <= storage->top; i++)
+    {
+        Shape *s = storage->items[i];
+        switch (s->type)
+        {
+        case POINT:
+            glPointSize(5.0f);
+            glColor3f(0.0f, 0.0f, 0.0f); // cor preta para o ponto
+            glBegin(GL_POINTS);
+            glVertex2f(s->points[0][0], s->points[0][1]);
+            glEnd();
+            break;
+        case LINE:
+            glBegin(GL_LINES);
+            glVertex2f(s->points[0][0], s->points[0][1]);
+            glVertex2f(s->points[1][0], s->points[1][1]);
+            glEnd();
+            break;
+            // outros tipos: TRIANGLE, SQUARE, POLYGON
+        }
+    }
     glFlush();
 }
 
@@ -23,26 +47,28 @@ int main(int argc, char **argv)
 {
     int option;
     bool control = true;
+    storage = criarPilha(10); // pilha de tamanho fixo, 10 figuras no maximo
 
     while (control)
     {
         startUI(&option);
-        if (option == 4)
+        switch (option)
         {
-            keyBindsUI();
-        }
-        else {
+        case 1:
             control = false;
+            break;
+        case 4:
+            keyBindsUI();
+        default:
         }
-
     }
-    
-    
+
+    // inicio do programa
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 
     glutInitWindowSize(200, 200);
-    glutInitWindowPosition(1300, 200);
+    glutInitWindowPosition(1100, 200);
     glutCreateWindow("Paint 2025 atualizado Premium");
 
     init();
@@ -53,6 +79,7 @@ int main(int argc, char **argv)
     glutSpecialFunc(tecladoEspecial);
     glutMouseFunc(mouse);
 
+    programUI();
     glutMainLoop();
     return 0;
 }

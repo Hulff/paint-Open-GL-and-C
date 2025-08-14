@@ -3,13 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "shape.h"
-
-typedef struct
-{
-    Shape **items; // array de ponteiros para Shape
-    int top;       // índice do topo
-    int capacity;  // capacidade máxima
-} ShapeStack;
+#include "storage.h"
 
 // Cria pilha de tamanho fixo
 ShapeStack *criarPilha(int tamanho)

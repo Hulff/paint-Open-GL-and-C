@@ -3,5 +3,6 @@
 
 void startUI(int *option);
 void keyBindsUI();
+void programUI();
 
 #endif

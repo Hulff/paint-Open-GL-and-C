@@ -3,29 +3,45 @@
 #include <GL/glut.h>
 #include <stdio.h>
 
+#include "shape.h"
+#include "storage.h"
+#include "menu.h"
+
 extern float r, g, b;
+extern ShapeStack *storage; // pilha global de figuras
+
+bool waitingForClick = false; // controla captura de ponto
+ShapeType currentShapeType;   // guarda qual figura está sendo criada
 
 // ler teclado
 void teclado(unsigned char key, int x, int y)
 {
     printf("Tecla: %c\n", key);
-    if (key == 'b')
+
+    switch (key)
     {
-        r = 0.0f;
-        g = 0.0f;
-        b = 0.0f;
+    case 'b':
+        r = 0;
+        g = 0;
+        b = 0;
+        break;
+    case 'w':
+        r = 1;
+        g = 1;
+        b = 1;
+        break;
+    case 'q':
+        exit(0); // ESC ou sair
+    case 'p':    // criar ponto
+        printf("Clique no canvas para criar o ponto\n");
+        waitingForClick = true;
+        currentShapeType = POINT;
+        break;
     }
-    if (key == 'w')
-    {
-        r = 1.0f;
-        g = 1.0f;
-        b = 1.0f;
-    }
-    glutPostRedisplay(); // pede pra redesenhar a tela
-    if (key == 27)
-        exit(0); // ESC
+
+    glutPostRedisplay();
 }
-// ler as setas
+// ler as setas (sem uso ainda)
 void tecladoEspecial(int key, int x, int y)
 {
     if (key == GLUT_KEY_UP)
@@ -37,9 +53,28 @@ void tecladoEspecial(int key, int x, int y)
     if (key == GLUT_KEY_RIGHT)
         printf("Seta →\n");
 }
-// ler pos do clique do mouse no canva
+
+// ler pos do clique do mouse 
 void mouse(int button, int state, int x, int y)
 {
-    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
-        printf("Clique esquerdo (%d,%d)\n", x, y);
+    if (waitingForClick && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    {
+        float fx = (float)x;
+        float fy = (float)(200 - y); 
+
+        // cria a figura
+        Shape *s = createShape(1);
+        s->points[0][0] = fx;
+        s->points[0][1] = fy;
+
+        // adiciona à pilha
+        adicionarFigura(storage, s);
+
+        waitingForClick = false; // resetar captura para que a proxima figura seja selecionada
+
+        programUI();
+        printf("Ponto adicionado em (%.2f, %.2f)\n", fx, fy);
+
+        glutPostRedisplay();
+    }
 }

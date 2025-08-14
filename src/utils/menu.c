@@ -32,6 +32,7 @@ void startUI(int *option)
     }
 }
 void keyBindsUI()
+
 {
     char temp;
     system("clear"); // Linux / macOS
@@ -62,3 +63,18 @@ void keyBindsUI()
         }
     }
 };
+void programUI()
+
+{
+    system("clear"); // Linux / macOS
+    printf("Controles dentro do programa:\n");
+    printf("############################################\n");
+    printf("Pressione 'p' para criar um ponto.\n");
+    printf("Pressione '' para criar um segmento de reta.\n");
+    printf("Pressione '' para criar um quadrado.\n");
+    printf("Pressione '' para criar um triangulo.\n");
+    printf("Pressione '' para utilizar a criação livre.\n");
+    printf("Pressione '' para apagar a última forma guardada na memoria.\n"); // tentar implementar
+    printf("Pressione 'q' para fechar.\n");
+    printf("############################################\n");
+}
