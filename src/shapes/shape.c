@@ -9,7 +9,7 @@ Shape *createShape(int num_points)
     switch (num_points)
     {
     case 1:
-        s->type = POINT;
+        s->type = SHAPE_POINT;
         break;
     case 2:
         s->type = LINE;

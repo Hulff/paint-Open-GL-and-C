@@ -17,6 +17,8 @@ ShapeType currentShapeType;   // guarda qual figura está sendo criada
 void teclado(unsigned char key, int x, int y)
 {
     printf("Tecla: %c\n", key);
+    (void)x;
+    (void)y;
 
     switch (key)
     {
@@ -35,7 +37,7 @@ void teclado(unsigned char key, int x, int y)
     case 'p':    // criar ponto
         printf("Clique no canvas para criar o ponto\n");
         waitingForClick = true;
-        currentShapeType = POINT;
+        currentShapeType = SHAPE_POINT;
         break;
     }
 
@@ -44,6 +46,9 @@ void teclado(unsigned char key, int x, int y)
 // ler as setas (sem uso ainda)
 void tecladoEspecial(int key, int x, int y)
 {
+    (void)x;
+    (void)y;
+    
     if (key == GLUT_KEY_UP)
         printf("Seta ↑\n");
     if (key == GLUT_KEY_DOWN)
