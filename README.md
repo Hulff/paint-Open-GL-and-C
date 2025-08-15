@@ -1,4 +1,5 @@
 
+---
 # 🎨 Paint em OpenGL (Trabalho de Computação Gráfica - UFCA)
 
 Projeto desenvolvido para a disciplina de **Computação Gráfica** da **Universidade Federal do Cariri**, ministrada pela professora **Luana Batista da Cruz**.
@@ -6,6 +7,15 @@ Projeto desenvolvido para a disciplina de **Computação Gráfica** da **Univers
 O objetivo é criar uma aplicação em **C com OpenGL** que permita desenhar, manipular e animar objetos geométricos primários, simulando um "Paint" personalizado.
 
 ---
+## Como rodar   no windows 
+make → compila o projeto.
+make run → compila e executa.
+make clean → apaga arquivos temporários para recompilar do zero.
+## Como rodar no linux
+make -f Makefile.linux → compila o projeto.
+make -f Makefile.linux run → compila e executa.
+make -f Makefile.linux clean → apaga arquivos temporários para recompilar do zero.
+
 
 ## 📋 Funcionalidades obrigatórias
 
@@ -79,16 +89,6 @@ Na apresentação, será necessário:
 * **Entrega:** 24/08
 * **Apresentações:** A partir de 26/08
   ⏳ Tempo de apresentação: **20 a 30 minutos**
----
-## Como rodar   no windows 
-make → compila o projeto.
-make run → compila e executa.
-make clean → apaga arquivos temporários para recompilar do zero.
-## Como rodar no linux
-make -f Makefile.linux → compila o projeto.
-make -f Makefile.linux run → compila e executa.
-make -f Makefile.linux clean → apaga arquivos temporários para recompilar do zero.
-
 ---
 ## Estrutura (exemplo depois ajustar para ficar igual com o projeto)
 paint-opengl/
