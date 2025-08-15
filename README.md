@@ -80,10 +80,15 @@ Na apresentação, será necessário:
 * **Apresentações:** A partir de 26/08
   ⏳ Tempo de apresentação: **20 a 30 minutos**
 ---
-## Como rodar  (linux, no windows tem que ver se é do mesmo jeito)
+## Como rodar   no windows 
 make → compila o projeto.
 make run → compila e executa.
 make clean → apaga arquivos temporários para recompilar do zero.
+## Como rodar no linux
+make -f Makefile.linux → compila o projeto.
+make -f Makefile.linux run → compila e executa.
+make -f Makefile.linux clean → apaga arquivos temporários para recompilar do zero.
+
 ---
 ## Estrutura (exemplo depois ajustar para ficar igual com o projeto)
 paint-opengl/
