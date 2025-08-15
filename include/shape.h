@@ -3,7 +3,7 @@
 
 typedef enum
 {
-    POINT,
+    SHAPE_POINT,
     LINE,
     SQUARE,
     TRIANGLE,

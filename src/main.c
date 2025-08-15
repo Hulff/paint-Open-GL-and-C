@@ -1,5 +1,6 @@
 
 #include <GL/glut.h>
+#include <stdbool.h>
 #include "input.h"
 #include "menu.h"
 #include "storage.h"
@@ -24,7 +25,7 @@ void display()
         Shape *s = storage->items[i];
         switch (s->type)
         {
-        case POINT:
+        case SHAPE_POINT:
             glPointSize(5.0f);
             glColor3f(0.0f, 0.0f, 0.0f); // cor preta para o ponto
             glBegin(GL_POINTS);
@@ -38,6 +39,21 @@ void display()
             glEnd();
             break;
             // outros tipos: TRIANGLE, SQUARE, POLYGON
+        case TRIANGLE:
+            //...
+            break;
+        case SQUARE:
+            //
+            break;
+        case POLYGON:
+            //
+            break;
+        case FREE_DRAW:
+            //
+            break;
+        default:
+            //
+            break; // evita warning se esquecer algum
         }
     }
     glFlush();

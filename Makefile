@@ -1,7 +1,7 @@
 TARGET = paint
 CC = gcc
 CFLAGS = -Wall -Wextra -Iinclude
-LIBS = -lGL -lGLU -lglut
+LIBS = -lopengl32 -lglu32 -lfreeglut
 
 SRC := $(shell find src -name "*.c")
 OBJ = $(SRC:.c=.o)
