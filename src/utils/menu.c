@@ -38,7 +38,7 @@ void keyBindsUI()
     system("clear"); // Linux / macOS
     printf("Controles dentro do programa:\n");
     printf("############################################\n");
-    printf("Pressione '' para criar um ponto.\n");
+    printf("Pressione 'p' para criar um ponto.\n");
     printf("Pressione '' para criar um segmento de reta.\n");
     printf("Pressione '' para criar um quadrado.\n");
     printf("Pressione '' para criar um triangulo.\n");
