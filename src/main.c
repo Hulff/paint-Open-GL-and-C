@@ -65,41 +65,40 @@ int main(int argc, char **argv)
     bool control = true;
     storage = criarPilha(10); // pilha de tamanho fixo, 10 figuras no maximo
 
-    // --- MENU INICIAL (apenas uma vez) ---
     while (control)
     {
         startUI(&option);
         switch (option)
         {
         case 1: // iniciar programa
-            control = false;   // sai do menu
+            control = false;   
             break;
-        case 4: // atalhos
+        case 4: // atalhos para o paint
             keyBindsUI();
             break;
-        case 0: // sair (opcional)
-            return 0;          // fecha o programa antes do GLUT
+        case 3:
+            return 0;         
         default:
             break;
         }
     }
 
-    // --- INICIALIZAÇÃO GLUT ---
+
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB); // melhor usar double buffer
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB); 
     glutInitWindowSize(200, 200);
-    glutInitWindowPosition(100, 100);            // evite 1100, pode abrir fora da tela
+    glutInitWindowPosition(100, 100);          
     glutCreateWindow("Paint 2025 atualizado Premium");
 
     init();
     glutDisplayFunc(display);
 
-    // callbacks
+ 
     glutKeyboardFunc(teclado);
     glutSpecialFunc(tecladoEspecial);
     glutMouseFunc(mouse);
 
-    programUI();   // interface complementar (se não for bloqueante)
+    programUI();  
 
     glutMainLoop();
     return 0;
