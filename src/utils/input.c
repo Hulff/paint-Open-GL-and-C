@@ -6,6 +6,7 @@
 #include "shape.h"
 #include "storage.h"
 #include "menu.h"
+#include "config.h"
 
 extern float r, g, b;
 extern ShapeStack *storage; // pilha global de figuras
@@ -65,7 +66,7 @@ void mouse(int button, int state, int x, int y)
     if (waitingForClick && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
         float fx = (float)x;
-        float fy = (float)(200 - y); 
+        float fy = (float)(windH - y); 
 
         // cria a figura
         Shape *s = createShape(1);

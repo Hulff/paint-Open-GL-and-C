@@ -5,6 +5,8 @@
 #include "menu.h"
 #include "storage.h"
 #include "shape.h"
+#include "config.h"
+
 
 // Definição das variáveis globais
 float r = 1.0f, g = 1.0f, b = 1.0f;
@@ -14,7 +16,7 @@ void init(void)
 {
     glClearColor(r, g, b, 0);
     glMatrixMode(GL_PROJECTION);
-    gluOrtho2D(0, 200, 0, 200);
+    gluOrtho2D(0, windW,0, windH);
 };
 void display()
 {
@@ -86,7 +88,7 @@ int main(int argc, char **argv)
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB); 
-    glutInitWindowSize(200, 200);
+    glutInitWindowSize(windW, windH);
     glutInitWindowPosition(100, 100);          
     glutCreateWindow("Paint 2025 atualizado Premium");
 
