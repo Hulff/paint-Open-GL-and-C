@@ -2,12 +2,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "clear.h"
 
 // Gera a UI
 void startUI(int *option)
 {
     int temp;
-    system("clear"); // Linux / macOS
+    clearScreen();
     printf("Seja bem-vindo ao Paint 2025 atualizado Premium!\n");
     printf("############################################\n");
     printf("Pressione '1' iniciar o modo de desenho livre\n");
@@ -17,7 +18,7 @@ void startUI(int *option)
     printf("############################################\n");
     while (1)
     {
-        printf("Escolha uma opção: ");
+        printf("Escolha uma opcao: ");
         if (scanf("%d", &temp) == 1 && temp >= 1 && temp <= 4) // scanf("%d", &temp) retorna 1 se a entrada foi válida
         {
             *option = temp;
@@ -25,7 +26,7 @@ void startUI(int *option)
         }
         else
         {
-            printf("Opção inválida. Tente novamente.\n");
+            printf("Opcao inválida. Tente novamente.\n");
             while (getchar() != '\n')
                 ;
         }
@@ -35,14 +36,14 @@ void keyBindsUI()
 
 {
     char temp;
-    system("clear"); // Linux / macOS
+    clearScreen();
     printf("Controles dentro do programa:\n");
     printf("############################################\n");
     printf("Pressione 'p' para criar um ponto.\n");
     printf("Pressione '' para criar um segmento de reta.\n");
     printf("Pressione '' para criar um quadrado.\n");
     printf("Pressione '' para criar um triangulo.\n");
-    printf("Pressione '' para utilizar a criação livre.\n");
+    printf("Pressione '' para utilizar a criacao livre.\n");
     printf("Pressione '' para apagar a última forma guardada na memoria.\n"); // tentar implementar
     printf("############################################\n");
     printf("Pressione 'q' voltar ao inicio.\n");
@@ -50,14 +51,14 @@ void keyBindsUI()
 
     while (1)
     {
-        printf("Escolha uma opção: ");
+        printf("Escolha uma opcao: ");
         if (scanf(" %c", &temp) == 1 && temp == 'q')
         {
             break;
         }
         else
         {
-            printf("Opção inválida. Tente novamente.\n");
+            printf("Opcao inválida. Tente novamente.\n");
             while (getchar() != '\n')
                 ;
         }
@@ -66,14 +67,14 @@ void keyBindsUI()
 void programUI()
 
 {
-    system("clear"); // Linux / macOS
+    clearScreen();
     printf("Controles dentro do programa:\n");
     printf("############################################\n");
     printf("Pressione 'p' para criar um ponto.\n");
     printf("Pressione '' para criar um segmento de reta.\n");
     printf("Pressione '' para criar um quadrado.\n");
     printf("Pressione '' para criar um triangulo.\n");
-    printf("Pressione '' para utilizar a criação livre.\n");
+    printf("Pressione '' para utilizar a criacao livre.\n");
     printf("Pressione '' para apagar a última forma guardada na memoria.\n"); // tentar implementar
     printf("Pressione 'q' para fechar.\n");
     printf("############################################\n");
