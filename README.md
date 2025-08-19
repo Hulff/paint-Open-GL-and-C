@@ -7,7 +7,9 @@ Projeto desenvolvido para a disciplina de **Computação Gráfica** da **Univers
 O objetivo é criar uma aplicação em **C com OpenGL** que permita desenhar, manipular e animar objetos geométricos primários, simulando um "Paint" personalizado.
 
 ---
-## Como rodar   no windows 
+## windows comando puro
+ gcc -Wall -Wextra -Iinclude (Get-ChildItem -Recurse -Filter *.c | ForEach-Object { $_.FullName }) -o paint.exe -lopengl32 -lglu32 -lfreeglut -mconsole
+## Como rodar   no windows  com cmake
 make → compila o projeto.
 make run → compila e executa.
 make clean → apaga arquivos temporários para recompilar do zero.
