@@ -16,7 +16,7 @@ typedef struct
     ShapeType type;
     int num_points;
     int id; //para podermos identificar a figura na busca na pilha
-    float (*points)[2]; // array de pontos [x, y]
+    float (*points)[3]; // array de pontos [x, y, z] z indica se o ponto deve ser renderizado ou não
 } Shape;
 
 // Funções para manipular shapes
