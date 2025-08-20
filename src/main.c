@@ -99,8 +99,8 @@ int main(int argc, char **argv)
     glutKeyboardFunc(teclado);
     glutSpecialFunc(tecladoEspecial);
     glutMouseFunc(mouse);
-
-    programUI();  
+    glutPassiveMotionFunc(mouseMove);
+    programUI();
 
     glutMainLoop();
     return 0;

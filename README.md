@@ -35,7 +35,7 @@ make -f Makefile.linux clean → apaga arquivos temporários para recompilar do 
 
 ### 3. Transformações Geométricas (com matrizes de transformação/compostas)
 
-* [ ] Arrastar e soltar (**translação**)
+* [X] Arrastar e soltar (**translação**)
 * [ ] Rotacionar em relação ao centro do objeto
 
   * Ponto: em relação à origem

@@ -15,7 +15,8 @@ extern ShapeStack *storage; // pilha global de figuras
 typedef enum
 {
     TRANSLATE,
-    ROTATE
+    ROTATE,
+    NONE,
 } Operation;
 bool waitingForClick = false; // controla captura de ponto
 bool createShapeMode = false; // controla criação de forma
@@ -52,6 +53,7 @@ void teclado(unsigned char key, int x, int y)
     case 't': // transladar
         currentOperation = TRANSLATE;
         printf("Clique no canvas para transladar a figura\n");
+        printf("Clique com o botao direito para confirmar a translação\n");
         waitingForClick = true;
         createShapeMode = false;
         break;
@@ -99,15 +101,26 @@ void mouse(int button, int state, int x, int y)
 
         glutPostRedisplay();
     }
-    else if (currentOperation == TRANSLATE && waitingForClick && !createShapeMode && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    else if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
     {
-        int pos = storage->top; //posição da figura a ser transladada
+        printf("Botão direito do mouse pressionado\n");
+        waitingForClick = false; // cancelar captura de ponto
+        createShapeMode = false; // cancelar modo de criação de forma
+        currentOperation = NONE; // cancelar operação atual
+    }
+}
+// ler pos do mouse sempre
+void mouseMove(int x, int y)
+{
+    if (currentOperation == TRANSLATE && waitingForClick && !createShapeMode)
+    {
+        int pos = storage->top; // posição da figura a ser transladada
         float fx = (float)x;
         float fy = (float)(windH - y);
 
-        Shape *s = storage->items[pos];  
-        //deslocamento dos pontos
-        float dx = fx - s->points[0][0]; 
+        Shape *s = storage->items[pos];
+        // deslocamento dos pontos
+        float dx = fx - s->points[0][0];
         float dy = fy - s->points[0][1];
 
         translate(s->points, s->num_points, dx, dy);
@@ -115,7 +128,6 @@ void mouse(int button, int state, int x, int y)
         programUI();
         printf("Figura transladada para (%.2f, %.2f)\n", fx, fy);
 
-        waitingForClick = false;
         glutPostRedisplay();
     }
 }
