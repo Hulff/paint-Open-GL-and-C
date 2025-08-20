@@ -53,7 +53,6 @@ void teclado(unsigned char key, int x, int y)
     case 't': // transladar
         currentOperation = TRANSLATE;
         printf("Clique no canvas para transladar a figura\n");
-        printf("Clique com o botao direito para confirmar a translação\n");
         waitingForClick = true;
         createShapeMode = false;
         break;
@@ -126,6 +125,7 @@ void mouseMove(int x, int y)
         translate(s->points, s->num_points, dx, dy);
 
         programUI();
+        printf("Clique com o botao direito para confirmar a translação\n");
         printf("Figura transladada para (%.2f, %.2f)\n", fx, fy);
 
         glutPostRedisplay();
