@@ -40,6 +40,7 @@ void keyBindsUI()
     printf("Controles dentro do programa:\n");
     printf("############################################\n");
     printf("Pressione 'p' para criar um ponto.\n");
+    printf("Pressione 't' para transladar uma figura.\n");
     printf("Pressione '' para criar um segmento de reta.\n");
     printf("Pressione '' para criar um quadrado.\n");
     printf("Pressione '' para criar um triangulo.\n");
@@ -71,7 +72,7 @@ void programUI()
     printf("Controles dentro do programa:\n");
     printf("############################################\n");
     printf("Pressione 'p' para criar um ponto.\n");
-    printf("Pressione '' para criar um segmento de reta.\n");
+    printf("Pressione 't' para criar um segmento de reta.\n");
     printf("Pressione '' para criar um quadrado.\n");
     printf("Pressione '' para criar um triangulo.\n");
     printf("Pressione '' para utilizar a criacao livre.\n");
