@@ -1,6 +1,6 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-void multiplicar_matrizes(float **matriz1, float **matriz2, float **resultado, int linhas1, int colunas1, int colunas2);
+void multiplicar_matrizes_3x3_3x1(float matriz1[3][1], float matriz2[3][3], float resultado[3][1]);
 
 #endif

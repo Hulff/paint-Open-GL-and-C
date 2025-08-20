@@ -3,9 +3,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-
-
-void multiplicar_matrizes(float **matriz1, float **matriz2, float **resultado, int linhas, int colunas1, int colunas2)
+// matriz2 (3x3) * matriz1 (3x1) = resultado (3x1)
+void multiplicar_matrizes_3x3_3x1(float matriz1[3][1], float matriz2[3][3], float resultado[3][1])
 {
-    
+    for (int i = 0; i < 3; i++)
+    {
+        resultado[i][0] = 0;
+        for (int k = 0; k < 3; k++)
+        {
+            resultado[i][0] += matriz2[i][k] * matriz1[k][0];
+        }
+    }
 }
