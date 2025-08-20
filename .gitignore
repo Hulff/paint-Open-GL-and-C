@@ -18,3 +18,5 @@ main
 
 # Arquivos gerados pelo Makefile
 *.dSYM
+
+.vscode
