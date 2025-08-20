@@ -3,7 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-void translate(float (*points)[2], int num_points, float xt, float yt)
+void translate(float (*points)[3], int num_points, float xt, float yt)
 {
 
     // // Direto, achei mais simples e eficiente
@@ -47,8 +47,9 @@ void translate(float (*points)[2], int num_points, float xt, float yt)
         points[i][1] = pointsResultado[1][0];
     }
 }
-void rotate(float (*points)[2], int num_points, double angle, float xt, float yt)
+void rotate(float (*points)[3], int num_points, double angle, float xt, float yt)
 {
+    //xt e yt usados para saber o valor do deslocamento até a origem a partir do centro da figura
     float translateMatrix[3][3] = {
         {1, 0, xt},
         {0, 1, yt},

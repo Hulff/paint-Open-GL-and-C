@@ -3,24 +3,10 @@
 #include "shape.h"
 
 // criar uma figura
-Shape *createShape(int num_points)
+Shape *createShape(int num_points, ShapeType type)
 {
     Shape *s = malloc(sizeof(Shape));
-    switch (num_points)
-    {
-    case 1:
-        s->type = SHAPE_POINT;
-        break;
-    case 2:
-        s->type = LINE;
-        break;
-    case 3:
-        s->type = TRIANGLE;
-        break;
-    default:
-        s->type = POLYGON;
-        break;
-    }
+    s->type = type;
     s->num_points = num_points;
     s->id = rand();                                   // id aleatório
     s->points = malloc(sizeof(float[num_points][3])); // aloca todos os pontos
@@ -28,7 +14,7 @@ Shape *createShape(int num_points)
     {
         s->points[i][0] = 0; // x
         s->points[i][1] = 0; // y
-        s->points[i][2] = 0; // z
+        s->points[i][2] = 0; // z (indica se o ponto deve ser renderizado ou não)
     }
     return s;
 }

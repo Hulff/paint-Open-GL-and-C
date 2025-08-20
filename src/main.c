@@ -7,7 +7,6 @@
 #include "shape.h"
 #include "config.h"
 
-
 // Definição das variáveis globais
 float r = 1.0f, g = 1.0f, b = 1.0f;
 ShapeStack *storage;
@@ -16,7 +15,7 @@ void init(void)
 {
     glClearColor(r, g, b, 0);
     glMatrixMode(GL_PROJECTION);
-    gluOrtho2D(0, windW,0, windH);
+    gluOrtho2D(0, windW, 0, windH);
 };
 void display()
 {
@@ -28,18 +27,28 @@ void display()
         switch (s->type)
         {
         case SHAPE_POINT:
-            glPointSize(5.0f);
-            glColor3f(0.0f, 0.0f, 0.0f); // cor preta para o ponto
-            glBegin(GL_POINTS);
-            glVertex2f(s->points[0][0], s->points[0][1]);
-            glEnd();
+            if (s->points[0][2] == 1) // se z == 1, renderiza
+            {
+                glPointSize(4.0f);
+                glColor3f(0.0f, 0.0f, 0.0f); // cor preta para o ponto
+                glBegin(GL_POINTS);
+                glVertex2f(s->points[0][0], s->points[0][1]);
+                glEnd();
+            }
             break;
         case LINE:
-            glBegin(GL_LINES);
-            glVertex2f(s->points[0][0], s->points[0][1]);
-            glVertex2f(s->points[1][0], s->points[1][1]);
-            glEnd();
-            break;
+            if (s->points[0][2] == 1) // se z == 1, renderiza
+            {
+                glBegin(GL_LINES);
+                for (int j = 0; j < s->num_points; j++)
+                {
+                    glColor3f(0.0f, 0.0f, 0.0f); // cor preta para a linha
+                    glVertex2f(s->points[j][0], s->points[j][1]);
+                    
+                }
+                glEnd();
+                break;
+            }
             // outros tipos: TRIANGLE, SQUARE, POLYGON
         case TRIANGLE:
             //...
@@ -73,29 +82,27 @@ int main(int argc, char **argv)
         switch (option)
         {
         case 1: // iniciar programa
-            control = false;   
+            control = false;
             break;
         case 4: // atalhos para o paint
             keyBindsUI();
             break;
         case 3:
-            return 0;         
+            return 0;
         default:
             break;
         }
     }
 
-
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB); 
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
     glutInitWindowSize(windW, windH);
-    glutInitWindowPosition(100, 100);          
+    glutInitWindowPosition(100, 100);
     glutCreateWindow("Paint 2025 atualizado Premium");
 
     init();
     glutDisplayFunc(display);
 
- 
     glutKeyboardFunc(teclado);
     glutSpecialFunc(tecladoEspecial);
     glutMouseFunc(mouse);
@@ -105,4 +112,3 @@ int main(int argc, char **argv)
     glutMainLoop();
     return 0;
 }
-

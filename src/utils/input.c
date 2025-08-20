@@ -20,6 +20,7 @@ typedef enum
 } Operation;
 bool waitingForClick = false; // controla captura de ponto
 bool createShapeMode = false; // controla criação de forma
+int n_points = 0;             // número de pontos criados
 Operation currentOperation;   // guarda qual operação está sendo feita
 ShapeType currentShapeType;   // guarda qual figura está sendo criada
 
@@ -49,6 +50,14 @@ void teclado(unsigned char key, int x, int y)
         waitingForClick = true;
         createShapeMode = true;
         currentShapeType = SHAPE_POINT;
+        n_points = 0;
+        break;
+    case 'r': // criar reta
+        printf("Clique no canvas para escolher o primeiro ponto da reta\n");
+        waitingForClick = true;
+        createShapeMode = true;
+        currentShapeType = LINE;
+        n_points = 0;
         break;
     case 't': // transladar
         currentOperation = TRANSLATE;
@@ -79,16 +88,17 @@ void tecladoEspecial(int key, int x, int y)
 // ler pos do clique do mouse
 void mouse(int button, int state, int x, int y)
 {
-    if (waitingForClick && createShapeMode && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    if (n_points < 1 && currentShapeType == SHAPE_POINT && waitingForClick && createShapeMode && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
         float fx = (float)x;
         float fy = (float)(windH - y);
 
         // cria a figura
-        Shape *s = createShape(1);
-        s->points[0][0] = fx;
-        s->points[0][1] = fy;
-
+        Shape *s = createShape(1, SHAPE_POINT);
+        s->points[n_points][n_points] = fx;
+        s->points[n_points][1] = fy;
+        s->points[n_points][2] = 1; // z = 1 indica que o ponto deve ser renderizado
+        n_points++;
         // adiciona à pilha
         adicionarFigura(storage, s);
 
@@ -100,12 +110,52 @@ void mouse(int button, int state, int x, int y)
 
         glutPostRedisplay();
     }
+    else if (n_points < 2 && currentShapeType == LINE && waitingForClick && createShapeMode && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    {
+        float fx = (float)x;
+        float fy = (float)(windH - y);
+        Shape *s;
+        if (n_points == 0)
+        {
+            s = createShape(2, SHAPE_POINT);
+        }
+        else
+        {
+            s = storage->items[storage->top];
+            s->type = LINE;
+        };
+        // cria a figura
+        s->points[n_points][0] = fx;
+        s->points[n_points][1] = fy;
+        s->points[n_points][2] = 1; // z = 1 indica que o ponto deve ser renderizado
+        // adiciona à pilha
+        if (n_points == 0)
+        {
+            adicionarFigura(storage, s);
+        };
+        n_points++;
+
+        if (n_points == 2)
+        {
+            waitingForClick = false; // resetar captura para que a proxima figura seja selecionada
+            createShapeMode = false;
+        }
+
+        programUI();
+        printf("Ponto adicionado em (%.2f, %.2f)\n", fx, fy);
+        if (n_points == 1)
+        {
+            printf("selecione a posição do segundo ponto\n");
+        }
+
+        glutPostRedisplay();
+    }
     else if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
     {
-        printf("Botão direito do mouse pressionado\n");
         waitingForClick = false; // cancelar captura de ponto
         createShapeMode = false; // cancelar modo de criação de forma
         currentOperation = NONE; // cancelar operação atual
+        n_points = 0;            // reseta o numero de pontos
     }
 }
 // ler pos do mouse sempre

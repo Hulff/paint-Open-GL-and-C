@@ -8,7 +8,7 @@ O objetivo é criar uma aplicação em **C com OpenGL** que permita desenhar, ma
 
 ---
 ## windows comando puro
- gcc -Wall -Wextra -Iinclude (Get-ChildItem -Recurse -Filter *.c | ForEach-Object { $_.FullName }) -o paint.exe -lopengl32 -lglu32 -lfreeglut -mconsole
+ gcc -Wall -Wextra -Iinclude (Get-ChildItem -Recurse -Filter *.c | ForEach-Object { $_.FullName }) -o paint.exe -lopengl32 -lglu32 -lfreeglut -mconsole -lm
 ## Como rodar   no windows  com cmake
 make → compila o projeto.
 make run → compila e executa.
