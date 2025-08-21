@@ -24,7 +24,7 @@ make -f Makefile.linux clean → apaga arquivos temporários para recompilar do 
 ### 1. Criação de Objetos Primários (5,0 pontos)
 
 * [X] Criar **ponto**
-* [ ] Criar **segmento de reta**
+* [X] Criar **segmento de reta**
 * [ ] Criar **polígono**
 * [X] Permitir múltiplas criações de cada tipo
 
@@ -36,7 +36,7 @@ make -f Makefile.linux clean → apaga arquivos temporários para recompilar do 
 ### 3. Transformações Geométricas (com matrizes de transformação/compostas)
 
 * [X] Arrastar e soltar (**translação**)
-* [ ] Rotacionar em relação ao centro do objeto
+* [X] Rotacionar em relação ao centro do objeto
 
   * Ponto: em relação à origem
 * [ ] Escalar em relação ao centro do objeto
@@ -49,9 +49,9 @@ make -f Makefile.linux clean → apaga arquivos temporários para recompilar do 
 
 * [ ] Implementar eventos com:
 
-  * [ ] Clique do mouse
+  * [X] Clique do mouse
   * [ ] Botão de rolagem do mouse
-  * [ ] Teclado
+  * [X] Teclado
 
 ---
 

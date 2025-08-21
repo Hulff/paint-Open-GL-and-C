@@ -15,6 +15,8 @@ void multiplicar_matrizes_3x3_3x1(float matriz1[3][1], float matriz2[3][3], floa
         }
     }
 }
+
+
 void multiplicar_matrizes_3x3_3x3(float matriz1[3][3], float matriz2[3][3], float resultado[3][3])
 {
     for (int i = 0; i < 3; i++)
@@ -24,7 +26,7 @@ void multiplicar_matrizes_3x3_3x3(float matriz1[3][3], float matriz2[3][3], floa
             resultado[i][j] = 0;
             for (int k = 0; k < 3; k++)
             {
-                resultado[i][j] += matriz2[i][k] * matriz1[k][j];
+                resultado[i][j] += matriz1[i][k] * matriz2[k][j];
             }
         }
     }

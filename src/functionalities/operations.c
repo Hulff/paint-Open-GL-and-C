@@ -28,8 +28,7 @@ void translate(float (*points)[3], int num_points, float xt, float yt)
     float translateMatrix[3][3] = {
         {1, 0, xt},
         {0, 1, yt},
-        {0, 0, 1}
-    };
+        {0, 0, 1}};
     // converter points para coordenadas homogêneas
     float pointsHomogeneos[3][1];
     float pointsResultado[3][1];
@@ -47,47 +46,41 @@ void translate(float (*points)[3], int num_points, float xt, float yt)
         points[i][1] = pointsResultado[1][0];
     }
 }
-void rotate(float (*points)[3], int num_points, double angle, float xt, float yt)
+void rotate(float (*points)[3], int num_points, double angle, float cx, float cy)
 {
-    //xt e yt usados para saber o valor do deslocamento até a origem a partir do centro da figura
-    float translateMatrix[3][3] = {
-        {1, 0, xt},
-        {0, 1, yt},
-        {0, 0, 1}
-    };
-    float translateBackMatrix[3][3] = {
-        {1, 0, -xt},
-        {0, 1, -yt},
-        {0, 0, 1}
-    };
-    float  rotateMatrix[3][3] = {
-        {cos(angle), -sin(angle), xt},
-        {sin(angle), cos(angle), yt},
-        {0, 0, 1}
-    };
-    float transformMatrix[3][3];
+    // Matriz de translação para a origem (centro da figura)
+    float translateToOrigin[3][3] = {
+        {1, 0, -cx},
+        {0, 1, -cy},
+        {0, 0, 1}};
 
-    // gerar matriz de transformação composta
-    // MTransform = MT*MR*MT
-    multiplicar_matrizes_3x3_3x3(translateMatrix, rotateMatrix, transformMatrix);
-    // MTransform2 = MTransform*MT
-    multiplicar_matrizes_3x3_3x3(transformMatrix, translateBackMatrix, transformMatrix);
+    // Matriz de rotação
+    float rotate[3][3] = {
+        {cos(angle), -sin(angle), 0},
+        {sin(angle), cos(angle), 0},
+        {0, 0, 1}};
 
-    // converter points para coordenadas homogêneas
-    float pointsHomogeneos[3][1];
-    float pointsResultado[3][1];
+    // Matriz de translação de volta
+    float translateBack[3][3] = {
+        {1, 0, cx},
+        {0, 1, cy},
+        {0, 0, 1}};
 
+    float temp[3][3];
+    float transform[3][3];
 
+    // MT= T_back * R * T_toOrigin
+    multiplicar_matrizes_3x3_3x3(rotate, translateToOrigin, temp);     //temp = R * T_toOrigin
+    multiplicar_matrizes_3x3_3x3(translateBack, temp, transform); // transform = T_back * (R * T_toOrigin)
+
+    // Aplicar a transformação a todos os pontos
     for (int i = 0; i < num_points; i++)
     {
-        pointsHomogeneos[0][0] = points[i][0];
-        pointsHomogeneos[1][0] = points[i][1];
-        pointsHomogeneos[2][0] = 1;
+        float p[3][1] = {{points[i][0]}, {points[i][1]}, {1}}; // ponto em coordenadas homogêneas
+        float result[3][1];
+        multiplicar_matrizes_3x3_3x1(p, transform, result);
 
-        // p'i = M*pi, aplica a matriz de transformação nos pontos
-        multiplicar_matrizes_3x3_3x1(pointsHomogeneos, transformMatrix, pointsResultado);
-
-        points[i][0] = pointsResultado[0][0];
-        points[i][1] = pointsResultado[1][0];
+        points[i][0] = result[0][0];
+        points[i][1] = result[1][0];
     }
 }
