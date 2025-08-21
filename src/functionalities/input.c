@@ -44,6 +44,13 @@ void resetStates()
     current_scale = 0;       // reseta a escala
     center_scale_x = 0;      // reseta o centro x da escala
     center_scale_y = 0;      // reseta o centro y da escala
+    if (beforeScaleFig != NULL)
+    {
+        // libera memória da figura original antes de escalar
+        free(beforeScaleFig->points);
+        free(beforeScaleFig);
+        beforeScaleFig = NULL;
+    }
 }
 // ler teclado
 void teclado(unsigned char key, int x, int y)
@@ -83,6 +90,14 @@ void teclado(unsigned char key, int x, int y)
         currentShapeType = LINE;
         n_points = 0;
         break;
+    case 'o': // criar triangulo
+        printf("Clique no canvas para escolher o primeiro ponto do triangulo\n");
+        resetStates(); // resetar estados
+        waitingForClick = true;
+        createShapeMode = true;
+        currentShapeType = TRIANGLE;
+        n_points = 0;
+        break;
     case 't': // transladar
         if (storage->top < 0)
         {
@@ -91,6 +106,7 @@ void teclado(unsigned char key, int x, int y)
         }
         else
         {
+
             resetStates(); // resetar estados
 
             currentOperation = TRANSLATE;
@@ -107,6 +123,7 @@ void teclado(unsigned char key, int x, int y)
         }
         else
         {
+
             resetStates(); // resetar estados
 
             currentOperation = ROTATE;
@@ -123,10 +140,12 @@ void teclado(unsigned char key, int x, int y)
         }
         else
         {
+
             resetStates(); // resetar estados
             currentOperation = SCALE;
             printf("Use o scroll para controlar a escala\n");
         }
+
         break;
     }
 
@@ -158,7 +177,7 @@ void mouse(int button, int state, int x, int y)
 
         // cria a figura
         Shape *s = createShape(1, SHAPE_POINT);
-        s->points[n_points][n_points] = fx;
+        s->points[n_points][0] = fx;
         s->points[n_points][1] = fy;
         s->points[n_points][2] = 1; // z = 1 indica que o ponto deve ser renderizado
         n_points++;
@@ -209,6 +228,51 @@ void mouse(int button, int state, int x, int y)
         if (n_points == 1)
         {
             printf("selecione a posição do segundo ponto\n");
+        }
+
+        glutPostRedisplay();
+    }
+    else if (n_points < 3 && currentShapeType == TRIANGLE && waitingForClick && createShapeMode && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    {
+        float fx = (float)x;
+        float fy = (float)(windH - y);
+        Shape *s;
+        if (n_points == 0)
+        {
+            s = createShape(3, SHAPE_POINT);
+        }
+        else if (n_points == 1)
+        {
+            s = storage->items[storage->top];
+            s->type = LINE;
+        }
+        else
+        {
+            s = storage->items[storage->top];
+            s->type = TRIANGLE;
+        };
+        // cria a figura
+        s->points[n_points][0] = fx;
+        s->points[n_points][1] = fy;
+        s->points[n_points][2] = 1; // z = 1 indica que o ponto deve ser renderizado
+        // adiciona à pilha
+        if (n_points == 0)
+        {
+            adicionarFigura(storage, s);
+        };
+        n_points++;
+
+        if (n_points == 3)
+        {
+            waitingForClick = false; // resetar captura para que a proxima figura seja selecionada
+            createShapeMode = false;
+        }
+
+        programUI();
+        printf("Ponto adicionado em (%.2f, %.2f)\n", fx, fy);
+        if (n_points != 3)
+        {
+            printf("selecione a posição do %2d ponto\n", n_points + 1);
         }
 
         glutPostRedisplay();
@@ -293,8 +357,11 @@ void mouseWheel(int wheel, int direction, int x, int y)
         {
             // guardar os valores inciais da figura original antes de escalar
             beforeScaleFig = malloc(sizeof(Shape));
+            beforeScaleFig->type = s->type;
             beforeScaleFig->num_points = s->num_points;
-            beforeScaleFig->points = malloc(sizeof(float[s->num_points][2]));
+            beforeScaleFig->id = s->id;
+            beforeScaleFig->points = malloc(s->num_points * sizeof(float[3])); // bloco contínuo
+
             for (int i = 0; i < s->num_points; i++)
             {
                 center_scale_x += s->points[i][0];

@@ -10,6 +10,10 @@ Shape *createShape(int num_points, ShapeType type)
     s->num_points = num_points;
     s->id = rand();                                   // id aleatório
     s->points = malloc(sizeof(float[num_points][3])); // aloca todos os pontos
+    s->r = 0.0f;                                      // cor inicial
+    s->g = 0.0f;                                      // cor inicial
+    s->b = 0.0f;                                      // cor inicial
+
     for (int i = 0; i < num_points; i++)
     {
         s->points[i][0] = 0; // x

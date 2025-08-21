@@ -75,13 +75,14 @@ void programUI()
     printf("############################################\n");
     printf("Pressione 'p' para criar um ponto.\n");
     printf("Pressione 'l' para criar um segmento de reta.\n");
-    printf("Pressione '' para criar um quadrado.\n");
-    printf("Pressione '' para criar um triangulo.\n");
+    printf("Pressione 'i' para criar um quadrado.\n");
+    printf("Pressione 'o' para criar um triangulo.\n");
+    printf("Pressione 'k' para iniciar criacao livre.\n");
     printf("Pressione 't' para transladar uma figura.\n");
     printf("Pressione 'r' para rotacionar uma figura.\n");
     printf("Pressione 'e' para escala uma figura.\n");
     printf("Pressione '' para utilizar a criacao livre.\n");
-    printf("Pressione '' para apagar a última forma guardada na memoria.\n"); // tentar implementar
+    printf("Pressione '' para apagar a ultima forma guardada na memoria.\n"); // tentar implementar
     printf("Pressione 'q' para fechar.\n");
     printf("############################################\n");
 }

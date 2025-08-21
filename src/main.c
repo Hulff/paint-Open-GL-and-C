@@ -27,31 +27,29 @@ void display()
         switch (s->type)
         {
         case SHAPE_POINT:
-            if (s->points[0][2] == 1) // se z == 1, renderiza
-            {
-                glPointSize(4.0f);
-                glColor3f(0.0f, 0.0f, 0.0f); // cor preta para o ponto
-                glBegin(GL_POINTS);
-                glVertex2f(s->points[0][0], s->points[0][1]);
-                glEnd();
-            }
+            glPointSize(4.0f);
+            glColor3f(s->r, s->g, s->b);
+            glBegin(GL_POINTS);
+            glVertex2f(s->points[0][0], s->points[0][1]);
+            glEnd();
             break;
         case LINE:
-            if (s->points[0][2] == 1) // se z == 1, renderiza
+            glBegin(GL_LINES);
+            for (int j = 0; j < 2; j++)
             {
-                glBegin(GL_LINES);
-                for (int j = 0; j < s->num_points; j++)
-                {
-                    glColor3f(0.0f, 0.0f, 0.0f); // cor preta para a linha
-                    glVertex2f(s->points[j][0], s->points[j][1]);
-                    
-                }
-                glEnd();
-                break;
+                glColor3f(s->r, s->g, s->b); // cor da linha
+                glVertex2f(s->points[j][0], s->points[j][1]);
             }
-            // outros tipos: TRIANGLE, SQUARE, POLYGON
+            glEnd();
+            break;
         case TRIANGLE:
-            //...
+            glBegin(GL_TRIANGLES);
+            for (int j = 0; j < 3; j++)
+            {
+                glColor3f(s->r, s->g, s->b); // cor do triangulo
+                glVertex2f(s->points[j][0], s->points[j][1]);
+            }
+            glEnd();
             break;
         case SQUARE:
             //
@@ -107,7 +105,7 @@ int main(int argc, char **argv)
     glutSpecialFunc(tecladoEspecial);
     glutMouseFunc(mouse);
     glutPassiveMotionFunc(mouseMove);
-     glutMouseWheelFunc(mouseWheel);
+    glutMouseWheelFunc(mouseWheel);
     programUI();
 
     glutMainLoop();
