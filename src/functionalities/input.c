@@ -9,6 +9,7 @@
 #include "menu.h"
 #include "config.h"
 #include "operations.h"
+#include "helper.h"
 
 extern float r, g, b;
 extern ShapeStack *storage; // pilha global de figuras
@@ -113,14 +114,6 @@ void teclado(unsigned char key, int x, int y)
         waitingForClick = true;
         createShapeMode = true;
         currentShapeType = LINE;
-        n_points = 0;
-        break;
-    case 'o': // criar triangulo
-        printf("Clique no canvas para escolher o primeiro ponto do triangulo\n");
-        resetStates(); // resetar estados
-        waitingForClick = true;
-        createShapeMode = true;
-        currentShapeType = TRIANGLE;
         n_points = 0;
         break;
     case 'k': // criação livre
@@ -272,51 +265,6 @@ void mouse(int button, int state, int x, int y)
 
         glutPostRedisplay();
     }
-    else if (n_points < 3 && currentShapeType == TRIANGLE && waitingForClick && createShapeMode && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
-    {
-        float fx = (float)x;
-        float fy = (float)(windH - y);
-        Shape *s;
-        if (n_points == 0)
-        {
-            s = createShape(3, SHAPE_POINT);
-        }
-        else if (n_points == 1)
-        {
-            s = storage->items[storage->top];
-            s->type = LINE;
-        }
-        else
-        {
-            s = storage->items[storage->top];
-            s->type = TRIANGLE;
-        };
-        // cria a figura
-        s->points[n_points][0] = fx;
-        s->points[n_points][1] = fy;
-        s->points[n_points][2] = 1; // z = 1 indica que o ponto deve ser renderizado
-        // adiciona à pilha
-        if (n_points == 0)
-        {
-            adicionarFigura(storage, s);
-        };
-        n_points++;
-
-        if (n_points == 3)
-        {
-            waitingForClick = false; // resetar captura para que a proxima figura seja selecionada
-            createShapeMode = false;
-        }
-
-        programUI();
-        printf("Ponto adicionado em (%.2f, %.2f)\n", fx, fy);
-        if (n_points != 3)
-        {
-            printf("selecione a posição do %2d ponto\n", n_points + 1);
-        }
-
-        glutPostRedisplay();
-    }
     else if (n_points < 15 && currentShapeType == FREE_DRAW && waitingForClick && createShapeMode && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
         float fx = (float)x;
@@ -326,13 +274,13 @@ void mouse(int button, int state, int x, int y)
         {
             s = createShape(15, SHAPE_POINT); // 15 pontos sao alocados
         }
-        else //GL_LINE_LOOP aceita a partir de 2 pontos
+        else // GL_LINE_LOOP aceita a partir de 2 pontos
         {
             s = storage->items[storage->top];
             s->type = FREE_DRAW;
         }
         // cria a figura
-        
+
         s->points[n_points][0] = fx;
         s->points[n_points][1] = fy;
         s->points[n_points][2] = 1; // z = 1 indica que o ponto deve ser renderizado
@@ -367,12 +315,13 @@ void mouse(int button, int state, int x, int y)
         if (n_points == 0)
         {
             s = createShape(15, SHAPE_POINT); // 15 pontos sao alocados
-        } else if (n_points == 1)
+        }
+        else if (n_points == 1)
         {
             s = storage->items[storage->top];
             s->type = LINE;
         }
-        else if (n_points >= 2) //GL_POLYGON aceita a partir de 3 pontos
+        else if (n_points >= 2) // GL_POLYGON aceita a partir de 3 pontos
         {
             s = storage->items[storage->top];
             s->type = POLYGON;
@@ -442,13 +391,7 @@ void mouseMove(int x, int y)
 
         // calcula o centro da figura
         float cx = 0, cy = 0;
-        for (int i = 0; i < s->num_points; i++)
-        {
-            cx += s->points[i][0];
-            cy += s->points[i][1];
-        }
-        cx = cx / s->num_points;
-        cy = cy / s->num_points;
+        calcRealCenter(s, &cx, &cy);
 
         // ângulo atual do mouse em relação ao centro
         float current_angle = atan2(fy - cy, fx - cx); // retorna o ângulo desse vetor (fy - cy, fx - cx) em relação ao eixo X positivo.
@@ -481,24 +424,25 @@ void mouseWheel(int wheel, int direction, int x, int y)
         int pos = storage->top; // posição da figura a ser transladada
         Shape *s = storage->items[pos];
         // calcula o centro da figura original
-        if (center_scale_x == 0 && center_scale_y == 0) // garante apenas um por figura
+        if (center_scale_x == 0 && center_scale_y == 0) // garante apenas um cálculo por figura
         {
-            // guardar os valores inciais da figura original antes de escalar
+            // guardar os valores iniciais da figura original antes de escalar
             beforeScaleFig = malloc(sizeof(Shape));
             beforeScaleFig->type = s->type;
             beforeScaleFig->num_points = s->num_points;
             beforeScaleFig->id = s->id;
             beforeScaleFig->points = malloc(s->num_points * sizeof(float[3])); // bloco contínuo
 
+            // copia os pontos
             for (int i = 0; i < s->num_points; i++)
             {
-                center_scale_x += s->points[i][0];
-                center_scale_y += s->points[i][1];
                 beforeScaleFig->points[i][0] = s->points[i][0];
                 beforeScaleFig->points[i][1] = s->points[i][1];
+                beforeScaleFig->points[i][2] = s->points[i][2];
             }
-            center_scale_x = center_scale_x / s->num_points;
-            center_scale_y = center_scale_y / s->num_points;
+
+            // calcula o centro real usando a função
+            calcRealCenter(s, &center_scale_x, &center_scale_y);
         }
 
         if (direction > 0 && (1 + current_scale) < 2.0) // limite máximo
