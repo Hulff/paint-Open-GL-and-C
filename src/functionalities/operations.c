@@ -84,3 +84,42 @@ void rotate(float (*points)[3], int num_points, double angle, float cx, float cy
         points[i][1] = result[1][0];
     }
 }
+
+void escala(float (*points)[3],float (*originalPoints)[3], int num_points,float xf,float yf,float sx,float sy){
+
+   float transladarOrigem[3][3]={
+     {1,0,-xf},
+     {0,1,-yf},
+     {0,0,1}
+   };
+   
+   float matrizEscala[3][3]={
+     {sx,0,0},
+     {0,sy,0},
+     {0,0,1}
+   };
+
+    float voltarLocal[3][3]={
+     {1,0,xf},
+     {0,1,yf},
+     {0,0,1}
+   };
+
+   float resultadoEscala[3][3];
+   float voltarResultado[3][3];
+
+ multiplicar_matrizes_3x3_3x3(matrizEscala,transladarOrigem,resultadoEscala);
+ multiplicar_matrizes_3x3_3x3(voltarLocal,resultadoEscala,voltarResultado);
+
+ // Aplicar a transformação a todos os pontos
+    for (int i = 0; i < num_points; i++)
+    {
+        float p[3][1] = {{originalPoints[i][0]}, {originalPoints[i][1]}, {1}}; // ponto em coordenadas homogêneas
+        float result[3][1];
+        multiplicar_matrizes_3x3_3x1(p, voltarResultado, result);
+
+        points[i][0] = result[0][0];
+        points[i][1] = result[1][0];
+    }
+
+}

@@ -1,5 +1,5 @@
 
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 #include <stdbool.h>
 #include "input.h"
 #include "menu.h"
@@ -107,6 +107,7 @@ int main(int argc, char **argv)
     glutSpecialFunc(tecladoEspecial);
     glutMouseFunc(mouse);
     glutPassiveMotionFunc(mouseMove);
+     glutMouseWheelFunc(mouseWheel);
     programUI();
 
     glutMainLoop();

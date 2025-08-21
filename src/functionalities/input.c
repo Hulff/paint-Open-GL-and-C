@@ -9,7 +9,6 @@
 #include "menu.h"
 #include "config.h"
 #include "operations.h"
-#include "helper.h"
 
 extern float r, g, b;
 extern ShapeStack *storage; // pilha global de figuras
@@ -18,6 +17,7 @@ typedef enum
 {
     TRANSLATE,
     ROTATE,
+    SCALE,
     NONE,
 } Operation;
 bool waitingForClick = false; // controla captura de ponto
@@ -25,9 +25,26 @@ bool createShapeMode = false; // controla criação de forma
 bool rotationStarted = false; // controla início da rotação
 float last_angle = 0;         // ângulo anterior para rotação
 int n_points = 0;             // número de pontos criados
-Operation currentOperation;   // guarda qual operação está sendo feita
-ShapeType currentShapeType;   // guarda qual figura está sendo criada
+float current_scale = 0;      // escala incial
+float center_scale_x = 0;     // centro x da escala
+float center_scale_y = 0;     // centro y da escala
+Shape *beforeScaleFig = NULL; // guarda figura original antes de escalar
 
+Operation currentOperation; // guarda qual operação está sendo feita
+ShapeType currentShapeType; // guarda qual figura está sendo criada
+
+void resetStates()
+{
+    waitingForClick = false; // cancelar captura de ponto
+    createShapeMode = false; // cancelar modo de criação de forma
+    currentOperation = NONE; // cancelar operação atual
+    n_points = 0;            // reseta o numero de pontos
+    rotationStarted = false; // reseta o estado de rotação
+    last_angle = 0;          // reseta o ângulo da rotação incremental
+    current_scale = 0;       // reseta a escala
+    center_scale_x = 0;      // reseta o centro x da escala
+    center_scale_y = 0;      // reseta o centro y da escala
+}
 // ler teclado
 void teclado(unsigned char key, int x, int y)
 {
@@ -48,8 +65,10 @@ void teclado(unsigned char key, int x, int y)
         b = 1;
         break;
     case 'q':
-        exit(0); // ESC ou sair
-    case 'p':    // criar ponto
+        exit(0);       // ESC ou sair
+    case 'p':          // criar ponto
+        resetStates(); // resetar estados
+
         printf("Clique no canvas para criar o ponto\n");
         waitingForClick = true;
         createShapeMode = true;
@@ -58,6 +77,7 @@ void teclado(unsigned char key, int x, int y)
         break;
     case 'l': // criar reta
         printf("Clique no canvas para escolher o primeiro ponto da reta\n");
+        resetStates(); // resetar estados
         waitingForClick = true;
         createShapeMode = true;
         currentShapeType = LINE;
@@ -71,9 +91,10 @@ void teclado(unsigned char key, int x, int y)
         }
         else
         {
+            resetStates(); // resetar estados
 
             currentOperation = TRANSLATE;
-            printf("Clique no canvas para transladar a figura\n");
+            printf("Mova o mouse no canvas para transladar a figura\n");
             waitingForClick = true;
             createShapeMode = false;
         }
@@ -86,11 +107,25 @@ void teclado(unsigned char key, int x, int y)
         }
         else
         {
+            resetStates(); // resetar estados
 
             currentOperation = ROTATE;
-            printf("Clique no canvas para rotacionar a figura\n");
+            printf("Mova o mouse no canvas para rotacionar a figura\n");
             waitingForClick = true;
             createShapeMode = false;
+        }
+        break;
+    case 'e': // escalar
+        if (storage->top < 0)
+        {
+            // Não há figuras para transformar
+            printf("Nenhuma figura para transformar.\n");
+        }
+        else
+        {
+            resetStates(); // resetar estados
+            currentOperation = SCALE;
+            printf("Use o scroll para controlar a escala\n");
         }
         break;
     }
@@ -180,12 +215,7 @@ void mouse(int button, int state, int x, int y)
     }
     else if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
     {
-        waitingForClick = false; // cancelar captura de ponto
-        createShapeMode = false; // cancelar modo de criação de forma
-        currentOperation = NONE; // cancelar operação atual
-        n_points = 0;            // reseta o numero de pontos
-        rotationStarted = false; // reseta o estado de rotação
-        last_angle = 0;          // reseta o ângulo da rotação incremental
+        resetStates(); // cancelar captura de ponto
     }
 }
 // ler pos do mouse sempre
@@ -247,6 +277,50 @@ void mouseMove(int x, int y)
 
         programUI();
         printf("Clique com o botao direito para confirmar a rotação\n");
+        glutPostRedisplay();
+    }
+}
+
+void mouseWheel(int wheel, int direction, int x, int y)
+{
+
+    if (currentOperation == SCALE && !createShapeMode)
+    {
+        int pos = storage->top; // posição da figura a ser transladada
+        Shape *s = storage->items[pos];
+        // calcula o centro da figura original
+        if (center_scale_x == 0 && center_scale_y == 0) // garante apenas um por figura
+        {
+            // guardar os valores inciais da figura original antes de escalar
+            beforeScaleFig = malloc(sizeof(Shape));
+            beforeScaleFig->num_points = s->num_points;
+            beforeScaleFig->points = malloc(sizeof(float[s->num_points][2]));
+            for (int i = 0; i < s->num_points; i++)
+            {
+                center_scale_x += s->points[i][0];
+                center_scale_y += s->points[i][1];
+                beforeScaleFig->points[i][0] = s->points[i][0];
+                beforeScaleFig->points[i][1] = s->points[i][1];
+            }
+            center_scale_x = center_scale_x / s->num_points;
+            center_scale_y = center_scale_y / s->num_points;
+        }
+
+        if (direction > 0 && (1 + current_scale) < 2.0) // limite máximo
+        {
+            current_scale += 0.1;
+        }
+        else if (direction < 0 && (1 + current_scale) > 0.2) // limite mínimo
+        {
+            current_scale -= 0.1;
+        }
+        escala(s->points, beforeScaleFig->points, beforeScaleFig->num_points, center_scale_x, center_scale_y, 1 + current_scale, 1 + current_scale);
+
+        programUI();
+        printf("Use o scroll para controlar a escala\n");
+        printf("Use o botao direito para confirmar\n");
+        printf("Escala atual %2.f%% \n", (100 * current_scale));
+
         glutPostRedisplay();
     }
 }

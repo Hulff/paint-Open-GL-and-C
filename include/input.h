@@ -5,5 +5,6 @@ void teclado(unsigned char key, int x, int y);
 void tecladoEspecial(int key, int x, int y);
 void mouse(int button, int state, int x, int y);
 void mouseMove(int x, int y);
+void mouseWheel(int wheel, int direction, int x, int y);
 
 #endif

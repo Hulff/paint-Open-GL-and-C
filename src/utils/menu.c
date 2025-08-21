@@ -45,6 +45,7 @@ void keyBindsUI()
     printf("Pressione '' para criar um triangulo.\n");
     printf("Pressione 't' para transladar uma figura.\n");
     printf("Pressione 'r' para rotacionar uma figura.\n");
+    printf("Pressione 'e' para escala uma figura.\n");
     printf("Pressione '' para utilizar a criacao livre.\n");
     printf("Pressione '' para apagar a última forma guardada na memoria.\n"); // tentar implementar
     printf("############################################\n");
@@ -78,6 +79,7 @@ void programUI()
     printf("Pressione '' para criar um triangulo.\n");
     printf("Pressione 't' para transladar uma figura.\n");
     printf("Pressione 'r' para rotacionar uma figura.\n");
+    printf("Pressione 'e' para escala uma figura.\n");
     printf("Pressione '' para utilizar a criacao livre.\n");
     printf("Pressione '' para apagar a última forma guardada na memoria.\n"); // tentar implementar
     printf("Pressione 'q' para fechar.\n");
