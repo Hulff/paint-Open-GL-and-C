@@ -51,14 +51,29 @@ void display()
             }
             glEnd();
             break;
-        case SQUARE:
-            //
+        case FREE_DRAW:
+            glBegin(GL_LINE_LOOP);
+            for (int j = 0; j < s->num_points; j++)
+            {
+                if (s->points[j][2] == 1)
+                {
+                    glColor3f(s->r, s->g, s->b);
+                    glVertex2f(s->points[j][0], s->points[j][1]);
+                }
+            }
+            glEnd();
             break;
         case POLYGON:
-            //
-            break;
-        case FREE_DRAW:
-            //
+            glBegin(GL_POLYGON);
+            for (int j = 0; j < s->num_points; j++)
+            {
+                if (s->points[j][2] == 1)
+                {
+                    glColor3f(s->r, s->g, s->b);
+                    glVertex2f(s->points[j][0], s->points[j][1]);
+                }
+            }
+            glEnd();
             break;
         default:
             //

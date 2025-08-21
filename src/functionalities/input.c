@@ -123,6 +123,22 @@ void teclado(unsigned char key, int x, int y)
         currentShapeType = TRIANGLE;
         n_points = 0;
         break;
+    case 'k': // criação livre
+        printf("Clique no canvas para escolher o primeiro ponto do desenho livre\n");
+        resetStates(); // resetar estados
+        waitingForClick = true;
+        createShapeMode = true;
+        currentShapeType = FREE_DRAW;
+        n_points = 0;
+        break;
+    case 'j': // criação livre preenchida
+        printf("Clique no canvas para escolher o primeiro ponto do desenho livre\n");
+        resetStates(); // resetar estados
+        waitingForClick = true;
+        createShapeMode = true;
+        currentShapeType = POLYGON;
+        n_points = 0;
+        break;
     case 't': // transladar
         if (storage->top < 0)
         {
@@ -191,7 +207,6 @@ void tecladoEspecial(int key, int x, int y)
     if (key == GLUT_KEY_RIGHT)
         printf("Seta →\n");
 }
-
 // ler pos do clique do mouse
 void mouse(int button, int state, int x, int y)
 {
@@ -298,6 +313,94 @@ void mouse(int button, int state, int x, int y)
         if (n_points != 3)
         {
             printf("selecione a posição do %2d ponto\n", n_points + 1);
+        }
+
+        glutPostRedisplay();
+    }
+    else if (n_points < 15 && currentShapeType == FREE_DRAW && waitingForClick && createShapeMode && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    {
+        float fx = (float)x;
+        float fy = (float)(windH - y);
+        Shape *s;
+        if (n_points == 0)
+        {
+            s = createShape(15, SHAPE_POINT); // 15 pontos sao alocados
+        }
+        else //GL_LINE_LOOP aceita a partir de 2 pontos
+        {
+            s = storage->items[storage->top];
+            s->type = FREE_DRAW;
+        }
+        // cria a figura
+        
+        s->points[n_points][0] = fx;
+        s->points[n_points][1] = fy;
+        s->points[n_points][2] = 1; // z = 1 indica que o ponto deve ser renderizado
+        // adiciona à pilha
+        if (n_points == 0)
+        {
+            adicionarFigura(storage, s);
+        };
+        n_points++;
+
+        if (n_points == 15)
+        {
+            waitingForClick = false; // resetar captura para que a proxima figura seja selecionada
+            createShapeMode = false;
+        }
+
+        programUI();
+        printf("Ponto adicionado em (%.2f, %.2f)\n", fx, fy);
+        if (n_points != 15)
+        {
+            printf("selecione a posição do %d ponto\n", n_points + 1);
+            printf("o maximo sao 15 vertices \n");
+        }
+
+        glutPostRedisplay();
+    }
+    else if (n_points < 15 && currentShapeType == POLYGON && waitingForClick && createShapeMode && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    {
+        float fx = (float)x;
+        float fy = (float)(windH - y);
+        Shape *s;
+        if (n_points == 0)
+        {
+            s = createShape(15, SHAPE_POINT); // 15 pontos sao alocados
+        } else if (n_points == 1)
+        {
+            s = storage->items[storage->top];
+            s->type = LINE;
+        }
+        else if (n_points >= 2) //GL_POLYGON aceita a partir de 3 pontos
+        {
+            s = storage->items[storage->top];
+            s->type = POLYGON;
+        }
+        // cria a figura
+
+        s->points[n_points][0] = fx;
+        s->points[n_points][1] = fy;
+        s->points[n_points][2] = 1; // z = 1 indica que o ponto deve ser renderizado
+        // adiciona à pilha
+        if (n_points == 0)
+        {
+            adicionarFigura(storage, s);
+        };
+        n_points++;
+
+        if (n_points == 15)
+        {
+            waitingForClick = false; // resetar captura para que a proxima figura seja selecionada
+            createShapeMode = false;
+        }
+
+        programUI();
+        printf("Ponto adicionado em (%.2f, %.2f)\n", fx, fy);
+        if (n_points != 15)
+        {
+            printf("selecione a posição do %d ponto\n", n_points + 1);
+            printf("o maximo sao 15 vertices \n");
         }
 
         glutPostRedisplay();
@@ -434,7 +537,7 @@ void mouseWheel(int wheel, int direction, int x, int y)
         s->r = colors[selectedColorPos][0];
         s->g = colors[selectedColorPos][1];
         s->b = colors[selectedColorPos][2];
-        
+
         programUI();
         printf("Use o scroll para controlar a cor\n");
         printf("Use o botao direito para confirmar\n");
