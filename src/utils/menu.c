@@ -81,6 +81,7 @@ void programUI()
     printf("Pressione 't' para transladar uma figura.\n");
     printf("Pressione 'r' para rotacionar uma figura.\n");
     printf("Pressione 'e' para escala uma figura.\n");
+    printf("Pressione 'c' para escolher a cor da figura selecionada figura.\n");
     printf("Pressione '' para utilizar a criacao livre.\n");
     printf("Pressione '' para apagar a ultima forma guardada na memoria.\n"); // tentar implementar
     printf("Pressione 'q' para fechar.\n");

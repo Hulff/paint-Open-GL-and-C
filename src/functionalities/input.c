@@ -18,13 +18,18 @@ typedef enum
     TRANSLATE,
     ROTATE,
     SCALE,
+    COLOR,
     NONE,
 } Operation;
+
 bool waitingForClick = false; // controla captura de ponto
 bool createShapeMode = false; // controla criação de forma
 bool rotationStarted = false; // controla início da rotação
-float last_angle = 0;         // ângulo anterior para rotação
-int n_points = 0;             // número de pontos criados
+
+int n_points = 0; // número de pontos criados
+
+float last_angle = 0; // ângulo anterior para rotação
+
 float current_scale = 0;      // escala incial
 float center_scale_x = 0;     // centro x da escala
 float center_scale_y = 0;     // centro y da escala
@@ -33,6 +38,17 @@ Shape *beforeScaleFig = NULL; // guarda figura original antes de escalar
 Operation currentOperation; // guarda qual operação está sendo feita
 ShapeType currentShapeType; // guarda qual figura está sendo criada
 
+int selectedColorPos = 0; // guarda a posição da cor escolhida
+float colors[8][3] = {
+    {0.0f, 0.0f, 0.0f}, // preto
+    {1.0f, 0.0f, 0.0f}, // vermelho
+    {0.0f, 1.0f, 0.0f}, // verde
+    {0.0f, 0.0f, 1.0f}, // azul
+    {1.0f, 1.0f, 0.0f}, // amarelo
+    {1.0f, 0.0f, 1.0f}, // magenta
+    {0.0f, 1.0f, 1.0f}, // ciano
+    {1.0f, 1.0f, 1.0f}, // branco
+};
 void resetStates()
 {
     waitingForClick = false; // cancelar captura de ponto
@@ -44,6 +60,8 @@ void resetStates()
     current_scale = 0;       // reseta a escala
     center_scale_x = 0;      // reseta o centro x da escala
     center_scale_y = 0;      // reseta o centro y da escala
+    selectedColorPos = 0;    // reseta a posição da cor escolhida
+
     if (beforeScaleFig != NULL)
     {
         // libera memória da figura original antes de escalar
@@ -52,6 +70,7 @@ void resetStates()
         beforeScaleFig = NULL;
     }
 }
+
 // ler teclado
 void teclado(unsigned char key, int x, int y)
 {
@@ -72,7 +91,13 @@ void teclado(unsigned char key, int x, int y)
         b = 1;
         break;
     case 'q':
-        exit(0);       // ESC ou sair
+        exit(0); // ESC ou sair
+    case 'c':
+        resetStates(); // resetar estados
+        printf("use o scroll para mudar as cores\n");
+        waitingForClick = true;
+        currentOperation = COLOR;
+        break;
     case 'p':          // criar ponto
         resetStates(); // resetar estados
 
@@ -387,6 +412,33 @@ void mouseWheel(int wheel, int direction, int x, int y)
         printf("Use o scroll para controlar a escala\n");
         printf("Use o botao direito para confirmar\n");
         printf("Escala atual %2.f%% \n", (100 * current_scale));
+
+        glutPostRedisplay();
+    }
+    if (currentOperation == COLOR && !createShapeMode)
+    {
+        int pos = storage->top; // posição da figura a ser transladada
+        Shape *s = storage->items[pos];
+        if (direction > 0)
+        {
+            selectedColorPos++;
+            if (selectedColorPos > 8)
+                selectedColorPos = 0;
+        }
+        else
+        {
+            selectedColorPos--;
+            if (selectedColorPos < 0)
+                selectedColorPos = 8;
+        }
+        s->r = colors[selectedColorPos][0];
+        s->g = colors[selectedColorPos][1];
+        s->b = colors[selectedColorPos][2];
+        
+        programUI();
+        printf("Use o scroll para controlar a cor\n");
+        printf("Use o botao direito para confirmar\n");
+        printf("Cor atual: (%.2f, %.2f, %.2f)\n", s->r, s->g, s->b);
 
         glutPostRedisplay();
     }
