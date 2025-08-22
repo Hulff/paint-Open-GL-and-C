@@ -10,9 +10,11 @@
 #include "config.h"
 #include "operations.h"
 #include "helper.h"
+#include "select.h"
 
 extern float r, g, b;
-extern ShapeStack *storage; // pilha global de figuras
+extern ShapeStack *storage; // pilha global de figuras (criado na Main)
+extern Selector *selector;  // selector global (criado na Main)
 
 typedef enum
 {
@@ -21,6 +23,7 @@ typedef enum
     SCALE,
     COLOR,
     NONE,
+    SELECTION,
 } Operation;
 
 bool waitingForClick = false; // controla captura de ponto
@@ -50,6 +53,7 @@ float colors[8][3] = {
     {0.0f, 1.0f, 1.0f}, // ciano
     {1.0f, 1.0f, 1.0f}, // branco
 };
+// helper para resetar estados
 void resetStates()
 {
     waitingForClick = false; // cancelar captura de ponto
@@ -76,8 +80,6 @@ void resetStates()
 void teclado(unsigned char key, int x, int y)
 {
     printf("Tecla: %c\n", key);
-    (void)x;
-    (void)y;
 
     switch (key)
     {
@@ -133,12 +135,7 @@ void teclado(unsigned char key, int x, int y)
         n_points = 0;
         break;
     case 't': // transladar
-        if (storage->top < 0)
-        {
-            // Não há figuras para transformar
-            printf("Nenhuma figura para transformar.\n");
-        }
-        else
+        if (verifyAvailability(storage, selector))
         {
 
             resetStates(); // resetar estados
@@ -150,12 +147,7 @@ void teclado(unsigned char key, int x, int y)
         }
         break;
     case 'r': // rotacionar
-        if (storage->top < 0)
-        {
-            // Não há figuras para transformar
-            printf("Nenhuma figura para transformar.\n");
-        }
-        else
+        if (verifyAvailability(storage, selector))
         {
 
             resetStates(); // resetar estados
@@ -167,12 +159,7 @@ void teclado(unsigned char key, int x, int y)
         }
         break;
     case 'e': // escalar
-        if (storage->top < 0)
-        {
-            // Não há figuras para transformar
-            printf("Nenhuma figura para transformar.\n");
-        }
-        else
+        if (verifyAvailability(storage, selector))
         {
 
             resetStates(); // resetar estados
@@ -181,6 +168,22 @@ void teclado(unsigned char key, int x, int y)
         }
 
         break;
+    case 's': // seleção
+        if (storage->top < 0)
+        {
+            // Não há figuras para transformar
+            printf("Nenhuma figura para selecionar.\n");
+        }
+        else
+        {
+
+            resetStates(); // resetar estados
+            currentOperation = SELECTION;
+            waitingForClick = true;
+            setSelectionMode(selector, 1);
+            printf("Clique na figura que deseja selecionar\n");
+        }
+        break;
     }
 
     glutPostRedisplay();
@@ -188,8 +191,6 @@ void teclado(unsigned char key, int x, int y)
 // ler as setas (sem uso ainda)
 void tecladoEspecial(int key, int x, int y)
 {
-    (void)x;
-    (void)y;
 
     if (key == GLUT_KEY_UP)
         printf("Seta ↑\n");
@@ -354,6 +355,18 @@ void mouse(int button, int state, int x, int y)
 
         glutPostRedisplay();
     }
+    else if (currentOperation == SELECTION && waitingForClick && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    {
+        float fx = (float)x;
+        float fy = (float)(windH - y);
+
+        programUI();
+        printf("buscando figura mais proxima de (%.2f, %.2f)\n", fx, fy);
+        // seleciona um elemento
+        selectShape(selector, storage->items, storage->top, fx, fy);
+
+        glutPostRedisplay();
+    }
     else if (button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
     {
         resetStates(); // cancelar captura de ponto
@@ -363,9 +376,9 @@ void mouse(int button, int state, int x, int y)
 void mouseMove(int x, int y)
 {
 
-    if (currentOperation == TRANSLATE && waitingForClick && !createShapeMode)
+    if (currentOperation == TRANSLATE && waitingForClick && !createShapeMode && selector->selected != NULL)
     {
-        int pos = storage->top; // posição da figura a ser transladada
+        int pos = selector->index; // posição da figura a ser transladada
         float fx = (float)x;
         float fy = (float)(windH - y);
 
@@ -382,9 +395,10 @@ void mouseMove(int x, int y)
 
         glutPostRedisplay();
     }
-    else if (currentOperation == ROTATE && waitingForClick && !createShapeMode)
+    else if (currentOperation == ROTATE && waitingForClick && !createShapeMode && selector->selected != NULL)
     {
-        int pos = storage->top;
+        int pos = selector->index; // posição da figura a ser transladada
+
         float fx = (float)x;
         float fy = (float)(windH - y);
         Shape *s = storage->items[pos];
@@ -419,9 +433,9 @@ void mouseMove(int x, int y)
 void mouseWheel(int wheel, int direction, int x, int y)
 {
 
-    if (currentOperation == SCALE && !createShapeMode)
+    if (currentOperation == SCALE && !createShapeMode && selector->selected != NULL)
     {
-        int pos = storage->top; // posição da figura a ser transladada
+        int pos = selector->index; // posição da figura a ser transladada
         Shape *s = storage->items[pos];
         // calcula o centro da figura original
         if (center_scale_x == 0 && center_scale_y == 0) // garante apenas um cálculo por figura
@@ -462,9 +476,9 @@ void mouseWheel(int wheel, int direction, int x, int y)
 
         glutPostRedisplay();
     }
-    if (currentOperation == COLOR && !createShapeMode)
+    if (currentOperation == COLOR && !createShapeMode && selector->selected != NULL)
     {
-        int pos = storage->top; // posição da figura a ser transladada
+        int pos = selector->index; // posição da figura a ser transladada
         Shape *s = storage->items[pos];
         if (direction > 0)
         {

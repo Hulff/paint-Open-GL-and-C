@@ -6,10 +6,12 @@
 #include "storage.h"
 #include "shape.h"
 #include "config.h"
+#include "select.h"
 
 // Definição das variáveis globais
 float r = 1.0f, g = 1.0f, b = 1.0f;
 ShapeStack *storage;
+Selector *selector;
 
 void init(void)
 {
@@ -80,6 +82,10 @@ void display()
             break; // evita warning se esquecer algum
         }
     }
+    if (selector->selected != NULL)
+    {
+        drawSelection(selector);
+    }
     glFlush();
 }
 
@@ -87,7 +93,10 @@ int main(int argc, char **argv)
 {
     int option;
     bool control = true;
-    storage = criarPilha(10); // pilha de tamanho fixo, 10 figuras no maximo
+    storage = criarPilha(maxFig); // pilha de tamanho fixo, 10 figuras no maximo
+
+    selector = malloc(sizeof(Selector));
+    initSelector(selector, maxFig); // incializa os valores para o selector
 
     while (control)
     {

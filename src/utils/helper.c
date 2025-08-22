@@ -1,4 +1,9 @@
 #include "shape.h"
+#include "storage.h"
+#include "select.h"
+#include <stdlib.h>
+#include <stdio.h>
+
 void calcRealCenter(Shape *s, float *cx, float *cy)
 {
     int num_points = 0;
@@ -26,4 +31,19 @@ void calcRealCenter(Shape *s, float *cx, float *cy)
 
     *cx = cx_local;
     *cy = cy_local;
+}
+
+bool verifyAvailability(ShapeStack *storage, Selector *selector)
+{
+    if (storage->top < 0)
+    {
+        printf("Nenhuma figura criada\n");
+        return false;
+    }
+    if (selector->selected == NULL)
+    {
+        printf("Nenhuma figura selecionada\n");
+        return false;
+    }
+    return true;
 }

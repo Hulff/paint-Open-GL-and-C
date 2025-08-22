@@ -3,7 +3,12 @@
 #define HELPER_H
 
 #include "shape.h"
+#include "storage.h"
+#include "select.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 void calcRealCenter(Shape *s, float *cx, float *cy);
+bool verifyAvailability(ShapeStack *storage, Selector *selector);
 
 #endif

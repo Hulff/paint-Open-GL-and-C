@@ -25,13 +25,13 @@ make -f Makefile.linux clean → apaga arquivos temporários para recompilar do 
 
 * [X] Criar **ponto**
 * [X] Criar **segmento de reta**
-* [ ] Criar **polígono**
+* [X] Criar **polígono**
 * [X] Permitir múltiplas criações de cada tipo
 
 ### 2. Seleção e Exclusão de Objetos
 
-* [ ] Selecionar objetos individualmente (ponto, segmento ou polígono)
-* [ ] Excluir objeto selecionado
+* [X] Selecionar objetos individualmente (ponto, segmento ou polígono)
+* [X] Excluir objeto selecionado
 
 ### 3. Transformações Geométricas (com matrizes de transformação/compostas)
 
@@ -39,7 +39,7 @@ make -f Makefile.linux clean → apaga arquivos temporários para recompilar do 
 * [X] Rotacionar em relação ao centro do objeto
 
   * Ponto: em relação à origem
-* [ ] Escalar em relação ao centro do objeto
+* [X] Escalar em relação ao centro do objeto
 
   * Não se aplica a pontos
 * [ ] Reflexão
@@ -50,7 +50,7 @@ make -f Makefile.linux clean → apaga arquivos temporários para recompilar do 
 * [ ] Implementar eventos com:
 
   * [X] Clique do mouse
-  * [ ] Botão de rolagem do mouse
+  * [X] Botão de rolagem do mouse
   * [X] Teclado
 
 ---
