@@ -19,6 +19,7 @@ typedef enum
     TRANSLATE,
     ROTATE,
     SCALE,
+    SHEAR,
     COLOR,
     NONE,
 } Operation;
@@ -26,10 +27,16 @@ typedef enum
 bool waitingForClick = false; // controla captura de ponto
 bool createShapeMode = false; // controla criação de forma
 bool rotationStarted = false; // controla início da rotação
+bool shearingStarted = false; // controla início do cisalhamento
 
 int n_points = 0; // número de pontos criados
 
 float last_angle = 0; // ângulo anterior para rotação
+
+float last_mouse_x = 0; // posição anterior do mouse para cisalhamento
+float current_shx = 0.0f; // valor atual do cisalhamento
+float shear_center_x = 0.0f, shear_center_y = 0.0f;
+Shape *beforeShearFig = NULL;
 
 float current_scale = 0;      // escala incial
 float center_scale_x = 0;     // centro x da escala
@@ -57,11 +64,19 @@ void resetStates()
     currentOperation = NONE; // cancelar operação atual
     n_points = 0;            // reseta o numero de pontos
     rotationStarted = false; // reseta o estado de rotação
+    shearingStarted = false; // reseta o estado de cisalhamento
     last_angle = 0;          // reseta o ângulo da rotação incremental
     current_scale = 0;       // reseta a escala
     center_scale_x = 0;      // reseta o centro x da escala
     center_scale_y = 0;      // reseta o centro y da escala
     selectedColorPos = 0;    // reseta a posição da cor escolhida
+
+    if (beforeShearFig != NULL)
+    {
+    free(beforeShearFig->points);
+    free(beforeShearFig);
+    beforeShearFig = NULL;
+    }
 
     if (beforeScaleFig != NULL)
     {
@@ -178,6 +193,24 @@ void teclado(unsigned char key, int x, int y)
             resetStates(); // resetar estados
             currentOperation = SCALE;
             printf("Use o scroll para controlar a escala\n");
+        }
+
+        break;
+    case 'z': // cisalhar horizontal
+        if (storage->top < 0)
+        {
+            // Não há figuras para transformar
+            printf("Nenhuma figura para transformar.\n");
+        }
+        else
+        {
+
+            resetStates(); // resetar estados
+
+            currentOperation = SHEAR;
+            printf("Mova o mouse no canvas para cisalhar a figura\n");
+            waitingForClick = true;
+            createShapeMode = false;
         }
 
         break;
@@ -412,6 +445,57 @@ void mouseMove(int x, int y)
 
         programUI();
         printf("Clique com o botao direito para confirmar a rotação\n");
+        glutPostRedisplay();
+    }
+    else if (currentOperation == SHEAR && waitingForClick && !createShapeMode)
+    {
+        int pos = storage->top;
+        Shape *s = storage->items[pos];
+
+        float fx = (float)x;
+        float fy = (float)(windH - y);
+
+        // inicia controle do cisalhamento
+        if (!shearingStarted)
+        {
+            // congela a geometria original
+            beforeShearFig = malloc(sizeof(Shape));
+            beforeShearFig->type = s->type;
+            beforeShearFig->num_points = s->num_points;
+            beforeShearFig->id = s->id;
+            beforeShearFig->points = malloc(s->num_points * sizeof(float[3]));
+            for (int i = 0; i < s->num_points; i++)
+            {
+                beforeShearFig->points[i][0] = s->points[i][0];
+                beforeShearFig->points[i][1] = s->points[i][1];
+                beforeShearFig->points[i][2] = s->points[i][2];
+            }
+
+            // calcula pivô no centro da figura
+            calcRealCenter(s, &shear_center_x, &shear_center_y);
+
+            last_mouse_x = fx;     // posição inicial do mouse
+            current_shx  = 0.0f;   // cisalhamento inicial
+            shearingStarted = true;
+        }
+
+        // deslocamento horizontal desde o último movimento
+        float delta_x = fx - last_mouse_x;
+
+        // sensibilidade: ajuste conforme achar confortável
+        float sensibilidade = 0.01f;
+
+        // atualiza cisalhamento acumulado
+        current_shx += delta_x * sensibilidade;
+
+        // aplica o cisalhamento em torno do centro (usando a figura congelada)
+        cisalhamento_h(s->points, beforeShearFig->points, s->num_points, shear_center_x, shear_center_y, current_shx);
+
+        last_mouse_x = fx;
+
+        programUI();
+        printf("Clique com o botao direito para confirmar o cisalhamento\n");
+        printf("shx atual: %.3f\n", current_shx);
         glutPostRedisplay();
     }
 }
