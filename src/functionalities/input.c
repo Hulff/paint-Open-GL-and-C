@@ -179,9 +179,47 @@ void teclado(unsigned char key, int x, int y)
             currentOperation = SCALE;
             printf("Use o scroll para controlar a escala\n");
         }
-
-        break;
+        case 'i': // reflexão
+    if (storage->top < 0)
+    {
+        printf("Nenhuma figura para refletir.\n");
     }
+    else
+    {
+        resetStates(); // limpa estados
+        Shape *s = storage->items[storage->top];
+
+        float cx = 0, cy = 0;
+        calcRealCenter(s, &cx, &cy);
+
+        printf("Escolha o eixo da reflexão:\n");
+        printf("  x - eixo X\n");
+        printf("  y - eixo Y\n");
+        printf("  o - origem\n");
+
+        // aqui você espera o próximo input
+        char axis;
+        scanf(" %c", &axis);
+
+        if (axis == 'x')
+        {
+            refletir(s->points, s->num_points, cx, cy, 1, -1); // reflexo eixo X
+            printf("Reflexão no eixo X concluída\n");
+        }
+        else if (axis == 'y')
+        {
+            refletir(s->points, s->num_points, cx, cy, -1, 1); // reflexo eixo Y
+            printf("Reflexão no eixo Y concluída\n");
+        }
+        else if (axis == 'o')
+        {
+            refletir(s->points, s->num_points, cx, cy, -1, -1); // reflexo na origem
+            printf("Reflexão na origem concluída\n");
+        }
+
+        glutPostRedisplay();
+    }
+    break;
 
     glutPostRedisplay();
 }
