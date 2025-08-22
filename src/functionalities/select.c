@@ -2,6 +2,7 @@
 #include <GL/freeglut.h>
 #include <math.h>
 #include <stdio.h>
+#include "helper.h"
 
 // dist�ncia euclidiana
 static float dist(float x1, float y1, float x2, float y2)
@@ -32,7 +33,7 @@ static float pointToSegmentDist(float px, float py, float x1, float y1, float x2
 static int pointInPolygon(float px, float py, Shape *poly)
 {
     int inside = 0;
-    for (int i = 0, j = poly->num_points - 1; i < poly->num_points; j = i++)
+    for (int i = 0, j = calcRealNumPoints(poly) - 1; i < calcRealNumPoints(poly); j = i++)
     {
         if (poly->points[i][2] == 1 && poly->points[j][2] == 1) // se os dois pontos sao utilizados pelo poligono
         {
@@ -148,7 +149,7 @@ void drawSelection(const Selector *sel)
     glBegin(GL_LINE_LOOP);
     for (int i = 0; i < s->num_points; i++)
     {
-        if (s->points[i][2] == 1)
+        if (s->points[i][2] == 1) // faz a marcação da selecao apenas para os pontos renderizados da figura
         {
             float x = s->points[i][0];
             float y = s->points[i][1];

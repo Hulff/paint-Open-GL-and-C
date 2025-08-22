@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 void calcRealCenter(Shape *s, float *cx, float *cy);
+int calcRealNumPoints(Shape *s);
 bool verifyAvailability(ShapeStack *storage, Selector *selector);
 
 #endif

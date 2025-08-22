@@ -33,6 +33,20 @@ void calcRealCenter(Shape *s, float *cx, float *cy)
     *cy = cy_local;
 }
 
+int calcRealNumPoints(Shape *s)
+{
+    int num_points = 0;
+    for (int i = 0; i < s->num_points; i++)
+    {
+        if (s->points[i][2] == 1)
+        {
+            num_points++;
+        }
+    }
+
+   return num_points;
+}
+
 bool verifyAvailability(ShapeStack *storage, Selector *selector)
 {
     if (storage->top < 0)
