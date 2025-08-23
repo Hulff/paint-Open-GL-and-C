@@ -24,6 +24,11 @@ typedef enum
     NONE,
 } Operation;
 
+typedef enum {
+    SHEAR_HORIZONTAL,
+    SHEAR_VERTICAL
+} ShearType;
+
 bool waitingForClick = false; // controla captura de ponto
 bool createShapeMode = false; // controla criação de forma
 bool rotationStarted = false; // controla início da rotação
@@ -33,8 +38,11 @@ int n_points = 0; // número de pontos criados
 
 float last_angle = 0; // ângulo anterior para rotação
 
-float last_mouse_x = 0; // posição anterior do mouse para cisalhamento
-float current_shx = 0.0f; // valor atual do cisalhamento
+ShearType currentShearType = SHEAR_HORIZONTAL; //padrão
+float last_mouse_x = 0; // posição anterior do mouse para cisalhamento horizontal
+float current_shx = 0.0f; // valor atual do cisalhamento horizontal
+float last_mouse_y = 0; // posição anterior do mouse para cisalhamento vertical
+float current_shy = 0.0f; // valor atual do cisalhamento vertical
 float shear_center_x = 0.0f, shear_center_y = 0.0f;
 Shape *beforeShearFig = NULL;
 
@@ -224,14 +232,22 @@ void tecladoEspecial(int key, int x, int y)
     (void)x;
     (void)y;
 
-    if (key == GLUT_KEY_UP)
+    if (key == GLUT_KEY_UP) {
         printf("Seta ↑\n");
-    if (key == GLUT_KEY_DOWN)
+        currentShearType = SHEAR_VERTICAL;
+    }
+    if (key == GLUT_KEY_DOWN) {
         printf("Seta ↓\n");
-    if (key == GLUT_KEY_LEFT)
+        currentShearType = SHEAR_VERTICAL;
+    }
+    if (key == GLUT_KEY_LEFT) {
         printf("Seta ←\n");
-    if (key == GLUT_KEY_RIGHT)
+        currentShearType = SHEAR_HORIZONTAL;
+    }
+    if (key == GLUT_KEY_RIGHT) {
         printf("Seta →\n");
+        currentShearType = SHEAR_HORIZONTAL;
+    }
 }
 // ler pos do clique do mouse
 void mouse(int button, int state, int x, int y)
@@ -464,40 +480,58 @@ void mouseMove(int x, int y)
             beforeShearFig->type = s->type;
             beforeShearFig->num_points = s->num_points;
             beforeShearFig->id = s->id;
-
             beforeShearFig->points = malloc(s->num_points * sizeof(float[3]));
+
             if (!beforeShearFig->points) { free(beforeShearFig); return; } // checa malloc
 
             for (int i = 0; i < s->num_points; i++)
             {
                 beforeShearFig->points[i][0] = s->points[i][0];
                 beforeShearFig->points[i][1] = s->points[i][1];
-                beforeShearFig->points[i][2] = s->points[i][2]; // não force 1
+                beforeShearFig->points[i][2] = s->points[i][2];
             }
 
             calcRealCenter(beforeShearFig, &shear_center_x, &shear_center_y);
             last_mouse_x = fx;
-            current_shx  = 0.0f;
+            last_mouse_y = fy;
+            current_shx = 0.0f;
+            current_shy = 0.0f;
             shearingStarted = true;
         }
 
         // deslocamento horizontal desde o último movimento
         float delta_x = fx - last_mouse_x;
+        float delta_y = fy - last_mouse_y;
 
         // sensibilidade: ajuste conforme achar confortável
         float sensibilidade = 0.01f;
 
-        // atualiza cisalhamento acumulado
-        current_shx += delta_x * sensibilidade;
-
-        // aplica o cisalhamento em torno do centro (usando a figura congelada)
-        cisalhamento_h(s->points, beforeShearFig->points, s->num_points, shear_center_x, shear_center_y, current_shx);
+        if (currentShearType == SHEAR_HORIZONTAL)
+        {
+            // atualiza cisalhamento acumulado
+            current_shx += delta_x * sensibilidade;
+            // aplica o cisalhamento em torno do centro (usando a figura congelada)
+            cisalhamento_h(s->points, beforeShearFig->points, s->num_points, shear_center_x, shear_center_y, current_shx);
+        }
+        else if (currentShearType == SHEAR_VERTICAL)
+        {
+            // atualiza cisalhamento acumulado
+            current_shy += delta_y * sensibilidade;
+            // aplica o cisalhamento em torno do centro (usando a figura congelada)
+            cisalhamento_v(s->points, beforeShearFig->points, s->num_points, shear_center_x, shear_center_y, current_shy);
+        }
 
         last_mouse_x = fx;
+        last_mouse_y = fy;
 
         programUI();
         printf("Clique com o botao direito para confirmar o cisalhamento\n");
-        printf("shx atual: %.3f\n", current_shx);
+        printf("Clique nas setas para alternar entre cisalhamento horizontal e vertical\n");
+        if (currentShearType == SHEAR_HORIZONTAL) {
+            printf("shx atual: %.3f\n", current_shx);
+        } else if (currentShearType == SHEAR_VERTICAL) {
+            printf("shy atual: %.3f\n", current_shy);
+        }
         glutPostRedisplay();
     }
 }
