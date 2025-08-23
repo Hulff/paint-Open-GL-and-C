@@ -125,26 +125,35 @@ void escala(float (*points)[3],float (*originalPoints)[3], int num_points,float 
 }
 
 void cisalhamento_h(float (*points)[3], float (*originalPoints)[3], int num_points, float cx, float cy, float shx){
-    float matrizCisalhamentoH[3][3]={
-     {1,shx,0},
-     {0,1,0},
-     {0,0,1}
-   };
+    if (!originalPoints || num_points <= 0) return;
 
-   for (int i = 0; i < num_points; i++)
-   {  
-    float p[3][1] = {{originalPoints[i][0]}, {originalPoints[i][1]}, {1}};
-    
-    p[0][0] -= cx; // transladar para a origem
-    p[1][0] -= cy; // transladar para a origem
-    
-    float result[3][1];
-    multiplicar_matrizes_3x3_3x1(p, matrizCisalhamentoH, result);
+    // Matriz de cisalhamento horizontal
+    float shearMatrix[3][3] = {
+        {1, shx, 0},
+        {0, 1, 0},
+        {0, 0, 1}
+    };
 
-    points[i][0] = result[0][0] + cx; // transladar de volta
-    points[i][1] = result[1][0] + cy; // transladar de volta
-    points[i][2] = 1.0f;
-   }
+    // Aplicar a transformação para cada ponto
+    for (int i = 0; i < num_points; i++) {
+        // Coordenadas homogêneas do ponto
+        float p[3][1] = {
+            {originalPoints[i][0] - cx}, // transladar para a origem
+            {originalPoints[i][1] - cy},
+            {1}
+        };
+
+        float result[3][1];
+
+        // multiplicar pelo cisalhamento
+        multiplicar_matrizes_3x3_3x1(p, shearMatrix, result);
+
+        // transladar de volta para a posição original
+        points[i][0] = result[0][0] + cx;
+        points[i][1] = result[1][0] + cy;
+        points[i][2] = originalPoints[i][2]; // mantém z original
+    }
+
 }
 
 void cisalhamento_v(float (*points)[3], float (*originalPoints)[3], int num_points, float x, float y, float shy){
@@ -163,4 +172,35 @@ void cisalhamento_v(float (*points)[3], float (*originalPoints)[3], int num_poin
     points[i][0] = result[0][0];
     points[i][1] = result[1][0];
    }
+}
+
+void cisalhamento_v(float (*points)[3], float (*originalPoints)[3], int num_points, float cx, float cy, float shy){
+    if (!originalPoints || num_points <= 0) return;
+
+    // Matriz de cisalhamento vertical
+    float shearMatrix[3][3] = {
+        {1, 0, 0},
+        {shy, 1, 0},
+        {0, 0, 1}
+    };
+
+    // Aplicar a transformação para cada ponto
+    for (int i = 0; i < num_points; i++) {
+        // Coordenadas homogêneas do ponto
+        float p[3][1] = {
+            {originalPoints[i][0] - cx}, // transladar para a origem
+            {originalPoints[i][1] - cy},
+            {1}
+        };
+
+        float result[3][1];
+
+        // multiplicar pelo cisalhamento
+        multiplicar_matrizes_3x3_3x1(p, shearMatrix, result);
+
+        // transladar de volta para a posição original
+        points[i][0] = result[0][0] + cx;
+        points[i][1] = result[1][0] + cy;
+        points[i][2] = originalPoints[i][2]; // mantém z original
+    }
 }

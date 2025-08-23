@@ -458,24 +458,26 @@ void mouseMove(int x, int y)
         // inicia controle do cisalhamento
         if (!shearingStarted)
         {
-            // congela a geometria original
+            if (s->num_points <= 0) return; // nada a fazer
+
             beforeShearFig = malloc(sizeof(Shape));
             beforeShearFig->type = s->type;
             beforeShearFig->num_points = s->num_points;
             beforeShearFig->id = s->id;
+
             beforeShearFig->points = malloc(s->num_points * sizeof(float[3]));
+            if (!beforeShearFig->points) { free(beforeShearFig); return; } // checa malloc
+
             for (int i = 0; i < s->num_points; i++)
             {
                 beforeShearFig->points[i][0] = s->points[i][0];
                 beforeShearFig->points[i][1] = s->points[i][1];
-                beforeShearFig->points[i][2] = s->points[i][2];
+                beforeShearFig->points[i][2] = s->points[i][2]; // não force 1
             }
 
-            // calcula pivô no centro da figura
-            calcRealCenter(s, &shear_center_x, &shear_center_y);
-
-            last_mouse_x = fx;     // posição inicial do mouse
-            current_shx  = 0.0f;   // cisalhamento inicial
+            calcRealCenter(beforeShearFig, &shear_center_x, &shear_center_y);
+            last_mouse_x = fx;
+            current_shx  = 0.0f;
             shearingStarted = true;
         }
 
