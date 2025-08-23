@@ -106,6 +106,10 @@ int main(int argc, char **argv)
         case 1: // iniciar programa
             control = false;
             break;
+        case 2: // listar desenhos salvos
+            drawingsUI(storage);
+            control = false;
+            break;
         case 4: // atalhos para o paint
             keyBindsUI();
             break;

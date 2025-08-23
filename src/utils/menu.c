@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "clear.h"
+#include "drawings.h"
 
 // Gera a UI
 void startUI(int *option)
@@ -67,6 +68,36 @@ void keyBindsUI()
         }
     }
 };
+void drawingsUI(ShapeStack *pilha)
+{
+    clearScreen();
+
+    char filenames[maxFiles][256];
+    int total = listarDesenhos(filenames); // lista arquivos e retorna total
+
+    if (total == 0)
+    {
+        printf("\nNenhum desenho salvo.\n");
+        printf("Pressione ENTER para voltar ao menu...");
+        while (getchar() != '\n')
+            ;
+        getchar();
+        return;
+    }
+
+    int escolha = 0;
+    printf("\nEscolha um desenho para carregar: ");
+    if (scanf("%d", &escolha) == 1 && escolha >= 0 && escolha <= total)
+    {
+        if (escolha != 0)
+        {
+            carregarPilhaPorIndice(pilha, filenames, escolha);
+            printf("Desenho carregado!\n");
+        }
+    }
+    //caso nao selecione inicia o programa com um desenho em branco
+}
+
 void programUI()
 
 {
@@ -83,6 +114,7 @@ void programUI()
     printf("Pressione 'c' para escolher a cor da figura selecionada figura.\n");
     printf("Pressione 's' para selecionar uma figura.\n");
     printf("Pressione '' para apagar a ultima forma guardada na memoria.\n"); // tentar implementar
+    printf("Pressione 'd' para salvar a figura atual.\n");
     printf("Pressione 'q' para fechar.\n");
     printf("############################################\n");
 }
