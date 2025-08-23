@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <stdbool.h>
+
 void calcRealCenter(Shape *s, float *cx, float *cy)
 {
     int num_points = 0;

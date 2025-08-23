@@ -184,6 +184,18 @@ void teclado(unsigned char key, int x, int y)
             printf("Clique na figura que deseja selecionar\n");
         }
         break;
+    case 'a':
+        resetStates();
+
+        ShapeStack* storageBackup = storage;
+        storage = criarPilha(maxFig);
+
+        animateSquare();
+
+        // criar forma
+        // animar
+        // apagar formas da animacao
+        // reverter storage
     }
 
     glutPostRedisplay();
@@ -503,4 +515,36 @@ void mouseWheel(int wheel, int direction, int x, int y)
 
         glutPostRedisplay();
     }
+}
+
+void animateSquare()
+{
+    float angle = 0.0f;
+
+    Shape *s = createShape(4, POLYGON);
+    s = storage->items[storage->top];
+    
+    s->points[0][0] = 200;
+    s->points[0][1] = 100;
+    s->points[0][2] = 1;
+    
+    s->points[0][0] = 400;
+    s->points[0][1] = 100;
+    s->points[0][2] = 1;  
+
+    s->points[0][0] = 200;
+    s->points[0][1] = 300;
+    s->points[0][2] = 1;  
+
+    s->points[0][0] = 200;
+    s->points[0][1] = 300;
+    s->points[0][2] = 1;
+
+    float cx = 0, cy = 0;
+    calcRealCenter(s, &cx, &cy);
+
+    rotate(s->points, s->num_points, angle, cx, cy);
+
+    programUI();
+    glutPostRedisplay();
 }
