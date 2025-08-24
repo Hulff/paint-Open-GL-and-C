@@ -83,6 +83,13 @@ void resetStates()
     center_scale_y = 0;      // reseta o centro y da escala
     selectedColorPos = 0;    // reseta a posição da cor escolhida
 
+    if (beforeShearFig != NULL)
+    {
+    free(beforeShearFig->points);
+    free(beforeShearFig);
+    beforeShearFig = NULL;
+    }
+
     if (beforeScaleFig != NULL)
     {
         // libera memória da figura original antes de escalar
@@ -192,12 +199,7 @@ void teclado(unsigned char key, int x, int y)
 
         break;
     case 'z': // cisalhar horizontal
-        if (storage->top < 0)
-        {
-            // Não há figuras para transformar
-            printf("Nenhuma figura para transformar.\n");
-        }
-        else
+        if (verifyAvailability(storage, selector))
         {
 
             resetStates(); // resetar estados
