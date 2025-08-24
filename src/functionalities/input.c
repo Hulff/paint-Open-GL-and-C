@@ -11,6 +11,7 @@
 #include "operations.h"
 #include "helper.h"
 #include "select.h"
+#include "drawings.h"
 
 extern float r, g, b;
 extern ShapeStack *storage; // pilha global de figuras (criado na Main)
@@ -105,7 +106,6 @@ void resetStates()
         beforeShearFig = NULL;
     }
 }
-
 // ler teclado
 void teclado(unsigned char key, int x, int y)
 {
@@ -214,17 +214,29 @@ void teclado(unsigned char key, int x, int y)
     case 's': // seleção
         if (storage->top < 0)
         {
-            // Não há figuras para transformar
+            // Não há figuras para Selecionar
             printf("Nenhuma figura para selecionar.\n");
         }
         else
         {
-
+            selector->selected = NULL; // reseta seleção
             resetStates(); // resetar estados
             currentOperation = SELECTION;
             waitingForClick = true;
             setSelectionMode(selector, 1);
             printf("Clique na figura que deseja selecionar\n");
+        }
+        break;
+    case 'd': // registrar desenho
+        if (storage->top < 0)
+        {
+            // Não há figuras para registrar
+            printf("Nenhuma figura para registrar.\n");
+        }
+        else
+        {
+            resetStates(); // resetar estados
+            salvarPilhaComTimestamp(storage);
         }
         break;
     }
@@ -412,9 +424,15 @@ void mouse(int button, int state, int x, int y)
         float fy = (float)(windH - y);
 
         programUI();
-        printf("buscando figura mais proxima de (%.2f, %.2f)\n", fx, fy);
+        // printf("buscando figura mais proxima de (%.2f, %.2f)\n", fx, fy);
         // seleciona um elemento
         selectShape(selector, storage->items, storage->top, fx, fy);
+        if(selector->selected != NULL)
+        {
+            printf("Figura selecionada\n");
+        } else {
+            printf("Nenhuma figura selecionada\n");
+        }
 
         glutPostRedisplay();
     }
@@ -427,7 +445,7 @@ void mouse(int button, int state, int x, int y)
 void mouseMove(int x, int y)
 {
 
-    if (currentOperation == TRANSLATE && waitingForClick && !createShapeMode && selector->selected != NULL)
+    if (currentOperation == TRANSLATE && waitingForClick && !createShapeMode && selector->selected != NULL )
     {
         int pos = selector->index; // posição da figura a ser transladada
         float fx = (float)x;
@@ -446,7 +464,7 @@ void mouseMove(int x, int y)
 
         glutPostRedisplay();
     }
-    else if (currentOperation == ROTATE && waitingForClick && !createShapeMode && selector->selected != NULL)
+    else if (currentOperation == ROTATE && waitingForClick && !createShapeMode && selector->selected != NULL )
     {
         int pos = selector->index; // posição da figura a ser transladada
 
@@ -555,7 +573,7 @@ void mouseMove(int x, int y)
 void mouseWheel(int wheel, int direction, int x, int y)
 {
 
-    if (currentOperation == SCALE && !createShapeMode && selector->selected != NULL)
+    if (currentOperation == SCALE && !createShapeMode && selector->selected != NULL )
     {
         int pos = selector->index; // posição da figura a ser transladada
         Shape *s = storage->items[pos];
@@ -598,7 +616,7 @@ void mouseWheel(int wheel, int direction, int x, int y)
 
         glutPostRedisplay();
     }
-    if (currentOperation == COLOR && !createShapeMode && selector->selected != NULL)
+    if (currentOperation == COLOR && !createShapeMode && selector->selected != NULL )
     {
         int pos = selector->index; // posição da figura a ser transladada
         Shape *s = storage->items[pos];

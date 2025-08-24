@@ -5,5 +5,6 @@
 #define windH 400
 #define windW 600
 #define maxFig 10
+#define maxFiles 100
 
 #endif

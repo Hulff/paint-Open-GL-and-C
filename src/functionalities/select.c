@@ -109,7 +109,7 @@ void selectShape(Selector *sel, Shape **shapes, int shapeCount, float x, float y
         {
             sel->selected = s;
             sel->index = i;
-            printf("Figura selecionada (tipo=%c, index=%d)\n", s->type, i);
+            // printf("Figura selecionada\n");
             return;
         }
     }
