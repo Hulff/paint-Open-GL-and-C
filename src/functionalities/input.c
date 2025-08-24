@@ -87,21 +87,6 @@ void resetStates()
 
     if (beforeShearFig != NULL)
     {
-    free(beforeShearFig->points);
-    free(beforeShearFig);
-    beforeShearFig = NULL;
-    }
-
-    if (beforeScaleFig != NULL)
-    {
-        // libera memória da figura original antes de escalar
-        free(beforeScaleFig->points);
-        free(beforeScaleFig);
-        beforeScaleFig = NULL;
-    }
-
-    if (beforeShearFig != NULL)
-    {
         free(beforeShearFig->points);
         free(beforeShearFig);
         beforeShearFig = NULL;
@@ -249,6 +234,18 @@ void teclado(unsigned char key, int x, int y)
             printf("Pressione Seta CIMA para refletir no eixo X.\n");
             printf("Pressione Seta DIREITA para refletir no eixo Y.\n");
             printf("Pressione Seta BAIXO para refletir na origem.\n");
+        }
+        break;
+    case 'x': // deleta a figura selecionada
+        if (verifyAvailability(storage, selector))
+        {
+            resetStates(); // Reseta estados de outras operações
+            currentOperation = REFLECT;
+            removerFiguraPorIndice(storage, selector->index);
+            printf("Figura deletada.\n");
+            selector->selected = NULL; // reseta seleção
+            selector->index = -1;
+            setSelectionMode(selector, 0); // desativa modo seleção
         }
         break;
     }

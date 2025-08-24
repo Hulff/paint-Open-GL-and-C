@@ -1,5 +1,6 @@
 # Arquivos objeto
 *.o
+#arquivos salvos
 *.txt
 
 # Executáveis compilados
