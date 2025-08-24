@@ -289,19 +289,19 @@ void tecladoEspecial(int key, int x, int y)
     }
 
     // Caso contrário
-    if (key == GLUT_KEY_UP) {
+    if (currentOperation == SHEAR && key == GLUT_KEY_UP ) {
         printf("Seta ↑\n");
         currentShearType = SHEAR_VERTICAL;
     }
-    if (key == GLUT_KEY_DOWN) {
+    if (currentOperation == SHEAR && key == GLUT_KEY_DOWN) {
         printf("Seta ↓\n");
         currentShearType = SHEAR_VERTICAL;
     }
-    if (key == GLUT_KEY_LEFT) {
+    if (currentOperation == SHEAR && key == GLUT_KEY_LEFT) {
         printf("Seta ←\n");
         currentShearType = SHEAR_HORIZONTAL;
     }
-    if (key == GLUT_KEY_RIGHT) {
+    if (currentOperation == SHEAR && key == GLUT_KEY_RIGHT) {
         printf("Seta →\n");
         currentShearType = SHEAR_HORIZONTAL;
     }
