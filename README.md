@@ -43,11 +43,11 @@ make -f Makefile.linux clean → apaga arquivos temporários para recompilar do 
 
   * Não se aplica a pontos
 * [ ] Reflexão
-* [ ] Cisalhamento
+* [X] Cisalhamento
 
 ### 4. Interação com o Usuário
 
-* [ ] Implementar eventos com:
+* [X] Implementar eventos com:
 
   * [X] Clique do mouse
   * [X] Botão de rolagem do mouse

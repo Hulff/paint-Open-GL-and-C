@@ -97,6 +97,13 @@ void resetStates()
         free(beforeScaleFig);
         beforeScaleFig = NULL;
     }
+
+    if (beforeShearFig != NULL)
+    {
+        free(beforeShearFig->points);
+        free(beforeShearFig);
+        beforeShearFig = NULL;
+    }
 }
 
 // ler teclado
