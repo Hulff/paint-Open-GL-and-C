@@ -49,6 +49,7 @@ void keyBindsUI()
     printf("Pressione 'e' para escala uma figura.\n");
     printf("Pressione 'i' para Reflexao em uma figura.\n");
     printf("Pressione 'z' para cisalhar uma figura.\n");
+    printf("Pressione 'i' para reflexao de uma figura.\n");
     printf("Pressione 'c' para escolher a cor da figura selecionada figura.\n");
     printf("Pressione 's' para selecionar uma figura.\n");
     printf("Pressione 'x' para apagar a figura selecionada.\n");
@@ -117,6 +118,7 @@ void programUI()
     printf("Pressione 'e' para escala uma figura.\n");
     printf("Pressione 'i' para Reflexao em uma figura.\n");
     printf("Pressione 'z' para cisalhar uma figura.\n");
+    printf("Pressione 'i' para reflexao de uma figura.\n");
     printf("Pressione 'c' para escolher a cor da figura selecionada figura.\n");
     printf("Pressione 's' para selecionar uma figura.\n");
     printf("Pressione 'x' para apagar a figura selecionada.\n"); 
