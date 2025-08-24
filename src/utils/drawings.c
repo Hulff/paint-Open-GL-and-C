@@ -110,6 +110,7 @@ int listarDesenhos(char filenames[maxFiles][256])
     intptr_t handle;
     char search_path[260];
 
+     // procura arquivos .txt na pasta drawings
     snprintf(search_path, sizeof(search_path), "drawings\\*.txt");
 
     handle = _findfirst(search_path, &file);
@@ -117,7 +118,7 @@ int listarDesenhos(char filenames[maxFiles][256])
         return 0;
 
     do {
-        if (!(file.attrib & _A_SUBDIR)) {
+        if (!(file.attrib & _A_SUBDIR)) { // ignora pastas
             snprintf(filenames[count], 256, "drawings/%s", file.name);
             count++;
             if (count >= maxFiles)
@@ -135,7 +136,7 @@ int listarDesenhos(char filenames[maxFiles][256])
 
     struct dirent *dir;
     while ((dir = readdir(d)) != NULL) {
-        if (dir->d_name[0] == '.') continue; // skip "." and ".."
+        if (dir->d_name[0] == '.') continue; // ignora "." e ".."
         const char *ext = strrchr(dir->d_name, '.');
         if (ext && strcmp(ext, ".txt") == 0) {
             snprintf(filenames[count], 256, "drawings/%s", dir->d_name);
@@ -148,7 +149,7 @@ int listarDesenhos(char filenames[maxFiles][256])
 #endif
 
     for (int i = 0; i < count; i++)
-        printf("%d: %s\n", i + 1, filenames[i]);
+        printf("%d: %s\n", i + 1, filenames[i]); // mostra arquivos numerados
 
-    return count;
+    return count; // total de arquivos encontrados
 }
