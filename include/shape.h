@@ -24,5 +24,6 @@ typedef struct
 
 // Funções para manipular shapes
 Shape *createShape(int num_points, ShapeType type);
+void freeShape(Shape *s);
 
 #endif
