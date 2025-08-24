@@ -1,26 +1,25 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <time.h>
 #include <string.h>
 
 #ifdef _WIN32
-#include <windows.h>
+#include <io.h>
 #include <direct.h>
 #define mkdir(path, mode) _mkdir(path)
 #else
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <dirent.h>
 #endif
 
 #include "storage.h"
 #include "shape.h"
-
 #include "config.h"
 
 // Salva a pilha em um arquivo com timestamp
 void salvarPilhaComTimestamp(ShapeStack *pilha)
 {
+    mkdir("drawings", 0777); // cria pasta se não existir
+
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
 
@@ -103,30 +102,53 @@ void carregarPilhaPorIndice(ShapeStack *pilha, char filenames[maxFiles][256], in
 // Lista arquivos da pasta drawings e armazena seus nomes em filenames
 int listarDesenhos(char filenames[maxFiles][256])
 {
+    int count = 0;
+
+#ifdef _WIN32
+    // Windows version
+    struct _finddata_t file;
+    intptr_t handle;
+    char search_path[260];
+
+    snprintf(search_path, sizeof(search_path), "drawings\\*.txt");
+
+    handle = _findfirst(search_path, &file);
+    if (handle == -1)
+        return 0;
+
+    do {
+        if (!(file.attrib & _A_SUBDIR)) {
+            snprintf(filenames[count], 256, "drawings/%s", file.name);
+            count++;
+            if (count >= maxFiles)
+                break;
+        }
+    } while (_findnext(handle, &file) == 0);
+
+    _findclose(handle);
+
+#else
+    // Linux / macOS version
     DIR *d = opendir("drawings");
     if (!d)
         return 0;
 
     struct dirent *dir;
-    int count = 0;
-    while ((dir = readdir(d)) != NULL)
-    {
-        if (dir->d_type == DT_REG) // arquivo regular
-        {
-            const char *ext = strrchr(dir->d_name, '.'); // procura última ocorrência de '.'
-            if (ext && strcmp(ext, ".txt") == 0)         // verifica se é ".txt"
-            {
-                snprintf(filenames[count], 256, "drawings/%s", dir->d_name);
-                count++;
-                if (count >= maxFiles)
-                    break;
-            }
+    while ((dir = readdir(d)) != NULL) {
+        if (dir->d_name[0] == '.') continue; // skip "." and ".."
+        const char *ext = strrchr(dir->d_name, '.');
+        if (ext && strcmp(ext, ".txt") == 0) {
+            snprintf(filenames[count], 256, "drawings/%s", dir->d_name);
+            count++;
+            if (count >= maxFiles)
+                break;
         }
     }
     closedir(d);
+#endif
 
     for (int i = 0; i < count; i++)
-        printf("%d: %s\n", i + 1, filenames[i]); // lista os elementos de forma enumerada
+        printf("%d: %s\n", i + 1, filenames[i]);
 
-    return count; // total de arquivos listados
+    return count;
 }
