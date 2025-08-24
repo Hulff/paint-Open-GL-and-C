@@ -1,5 +1,6 @@
 # Arquivos objeto
 *.o
+*.txt
 
 # Executáveis compilados
 paint

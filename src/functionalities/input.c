@@ -192,12 +192,7 @@ void teclado(unsigned char key, int x, int y)
 
         break;
     case 'z': // cisalhar horizontal
-        if (storage->top < 0)
-        {
-            // Não há figuras para transformar
-            printf("Nenhuma figura para transformar.\n");
-        }
-        else
+        if (verifyAvailability(storage, selector))
         {
 
             resetStates(); // resetar estados
