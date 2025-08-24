@@ -26,7 +26,6 @@ typedef enum
     COLOR,
     NONE,
     REFLECT,
-    REFLECT,
     SELECTION,
 } Operation;
 
@@ -256,7 +255,36 @@ void teclado(unsigned char key, int x, int y)
 // ler as setas (sem uso ainda)
 void tecladoEspecial(int key, int x, int y)
 {
+    if (currentOperation == REFLECT && selector->selected != NULL)
+    {
+        float cx, cy;
+        calcRealCenter(selector->selected, &cx, &cy);
 
+        switch (key)
+        {
+        case GLUT_KEY_UP: // Reflexão no eixo X
+            printf("Refletindo no eixo X ...\n");
+            reflexao(selector->selected, cx, cy, 0);
+            break;
+
+        case GLUT_KEY_RIGHT: // Reflexão no eixo Y
+            printf("Refletindo no eixo Y ...\n");
+            reflexao(selector->selected, cx, cy, 1);
+            break;
+
+        case GLUT_KEY_DOWN: // Reflexão na origem
+            printf("Refletindo na origem ...\n");
+            reflexao(selector->selected, cx, cy, 2);
+            break;
+        }
+
+        // Depois de aplicar a reflexão, se quiser já sair do modo
+        currentOperation = NONE;
+        printf("Reflexao aplicada.\n");
+
+        glutPostRedisplay();
+        return;
+    }
     if (key == GLUT_KEY_UP) {
         printf("Seta ↑\n");
         currentShearType = SHEAR_VERTICAL;
