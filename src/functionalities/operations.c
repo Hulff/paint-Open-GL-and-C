@@ -187,48 +187,60 @@ void cisalhamento_v(float (*points)[3], float (*originalPoints)[3], int num_poin
     }
 }
 // Função para refletir a figura
-void reflexao(Shape *s, float cx, float cy, int type)
+void reflexao(float (*points)[3], int num_points, float cx, float cy, int tipo)
 {
-    // Matriz de reflexão
-    float reflexao_matrix[3][3] = {
-        {1, 0, 0},
-        {0, 1, 0},
+    // Transladar para a origem
+    float transladarOrigem[3][3] = {
+        {1, 0, -cx},
+        {0, 1, -cy},
         {0, 0, 1}};
 
-    // Define a matriz baseada no tipo de reflexão
-    switch (type)
-    {
-    case 0: // Reflexão em torno do eixo X (horizontal)
-        reflexao_matrix[1][1] = -1.0f;
-        break;
-    case 1: // Reflexão em torno do eixo Y (vertical)
-        reflexao_matrix[0][0] = -1.0f;
-        break;
-    case 2: // Reflexão em torno da origem
-        reflexao_matrix[0][0] = -1.0f;
-        reflexao_matrix[1][1] = -1.0f;
-        break;
+    // Matriz de reflexão de acordo com o tipo
+    float matrizReflexao[3][3];
+    if (tipo == 0)
+    { // Reflexão em relação ao eixo X
+        float m[3][3] = {
+            {1, 0, 0},
+            {0, -1, 0},
+            {0, 0, 1}};
+        memcpy(matrizReflexao, m, sizeof(m));
     }
-    // Itera por todos os pontos da figura para aplicar a transformação
-    for (int i = 0; i < s->num_points; i++)
+    else if (tipo == 1)
+    { // Reflexão em relação ao eixo Y
+        float m[3][3] = {
+            {-1, 0, 0},
+            {0, 1, 0},
+            {0, 0, 1}};
+        memcpy(matrizReflexao, m, sizeof(m));
+    }
+    else if (tipo == 2)
+    { // Reflexão na origem
+        float m[3][3] = {
+            {-1, 0, 0},
+            {0, -1, 0},
+            {0, 0, 1}};
+        memcpy(matrizReflexao, m, sizeof(m));
+    }
+
+    // Transladar de volta ao local original
+    float voltarLocal[3][3] = {
+        {1, 0, cx},
+        {0, 1, cy},
+        {0, 0, 1}};
+
+    // Calcular transformação final: voltarLocal * matrizReflexao * transladarOrigem
+    float temp[3][3];
+    float transformacaoFinal[3][3];
+    multiplicar_matrizes_3x3_3x3(matrizReflexao, transladarOrigem, temp);
+    multiplicar_matrizes_3x3_3x3(voltarLocal, temp, transformacaoFinal);
+
+    // Aplicar transformação diretamente aos pontos
+    for (int i = 0; i < num_points; i++)
     {
-        float px = s->points[i][0];
-        float py = s->points[i][1];
-
-        // Transladar para a origem (baseado no centro da figura)
-        px -= cx;
-        py -= cy;
-
-        // Aplicar a reflexão (multiplicação de matriz)
-        float new_px = px * reflexao_matrix[0][0];
-        float new_py = py * reflexao_matrix[1][1];
-
-        // Transladar de volta para a posição original
-        px = new_px + cx;
-        py = new_py + cy;
-
-        // Atualiza os pontos da figura
-        s->points[i][0] = px;
-        s->points[i][1] = py;
+        float p[3][1] = {{points[i][0]}, {points[i][1]}, {1}};
+        float result[3][1];
+        multiplicar_matrizes_3x3_3x1(p, transformacaoFinal, result);
+        points[i][0] = result[0][0];
+        points[i][1] = result[1][0];
     }
 }

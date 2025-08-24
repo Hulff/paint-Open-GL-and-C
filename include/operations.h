@@ -7,6 +7,5 @@ void escala(float (*points)[3],float (*originalPoints)[3], int num_points,float 
 void cisalhamento_h(float (*points)[3], float (*originalPoints)[3], int num_points, float x, float y, float shx);
 void cisalhamento_v(float (*points)[3], float (*originalPoints)[3], int num_points, float x, float y, float shy);
 void reflexao(float (*points)[3], int num_points, float cx, float cy, int tipo);
-void reflexao(Shape *s, float cx, float cy, int type);
 
 #endif

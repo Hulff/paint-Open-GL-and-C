@@ -29,7 +29,8 @@ typedef enum
     SELECTION,
 } Operation;
 
-typedef enum {
+typedef enum
+{
     SHEAR_HORIZONTAL,
     SHEAR_VERTICAL
 } ShearType;
@@ -43,11 +44,11 @@ int n_points = 0; // número de pontos criados
 
 float last_angle = 0; // ângulo anterior para rotação
 
-ShearType currentShearType = SHEAR_HORIZONTAL; //padrão
-float last_mouse_x = 0; // posição anterior do mouse para cisalhamento horizontal
-float current_shx = 0.0f; // valor atual do cisalhamento horizontal
-float last_mouse_y = 0; // posição anterior do mouse para cisalhamento vertical
-float current_shy = 0.0f; // valor atual do cisalhamento vertical
+ShearType currentShearType = SHEAR_HORIZONTAL; // padrão
+float last_mouse_x = 0;                        // posição anterior do mouse para cisalhamento horizontal
+float current_shx = 0.0f;                      // valor atual do cisalhamento horizontal
+float last_mouse_y = 0;                        // posição anterior do mouse para cisalhamento vertical
+float current_shy = 0.0f;                      // valor atual do cisalhamento vertical
 float shear_center_x = 0.0f, shear_center_y = 0.0f;
 Shape *beforeShearFig = NULL;
 
@@ -206,7 +207,7 @@ void teclado(unsigned char key, int x, int y)
         else
         {
             selector->selected = NULL; // reseta seleção
-            resetStates(); // resetar estados
+            resetStates();             // resetar estados
             currentOperation = SELECTION;
             waitingForClick = true;
             setSelectionMode(selector, 1);
@@ -254,6 +255,7 @@ void teclado(unsigned char key, int x, int y)
 }
 // ler as setas (sem uso ainda)
 void tecladoEspecial(int key, int x, int y)
+
 {
     if (currentOperation == REFLECT && selector->selected != NULL)
     {
@@ -264,17 +266,17 @@ void tecladoEspecial(int key, int x, int y)
         {
         case GLUT_KEY_UP: // Reflexão no eixo X
             printf("Refletindo no eixo X ...\n");
-            reflexao(selector->selected, cx, cy, 0);
+            reflexao(selector->selected->points, selector->selected->num_points, cx, cy, 0);
             break;
 
         case GLUT_KEY_RIGHT: // Reflexão no eixo Y
             printf("Refletindo no eixo Y ...\n");
-            reflexao(selector->selected, cx, cy, 1);
+            reflexao(selector->selected->points, selector->selected->num_points, cx, cy, 1);
             break;
 
         case GLUT_KEY_DOWN: // Reflexão na origem
             printf("Refletindo na origem ...\n");
-            reflexao(selector->selected, cx, cy, 2);
+            reflexao(selector->selected->points, selector->selected->num_points, cx, cy, 2);
             break;
         }
 
@@ -285,19 +287,24 @@ void tecladoEspecial(int key, int x, int y)
         glutPostRedisplay();
         return;
     }
-    if (key == GLUT_KEY_UP) {
+
+    if (key == GLUT_KEY_UP)
+    {
         printf("Seta ↑\n");
         currentShearType = SHEAR_VERTICAL;
     }
-    if (currentOperation == SHEAR && key == GLUT_KEY_DOWN) {
+    if (currentOperation == SHEAR && key == GLUT_KEY_DOWN)
+    {
         printf("Seta ↓\n");
         currentShearType = SHEAR_VERTICAL;
     }
-    if (currentOperation == SHEAR && key == GLUT_KEY_LEFT) {
+    if (currentOperation == SHEAR && key == GLUT_KEY_LEFT)
+    {
         printf("Seta ←\n");
         currentShearType = SHEAR_HORIZONTAL;
     }
-    if (currentOperation == SHEAR && key == GLUT_KEY_RIGHT) {
+    if (currentOperation == SHEAR && key == GLUT_KEY_RIGHT)
+    {
         printf("Seta →\n");
         currentShearType = SHEAR_HORIZONTAL;
     }
@@ -465,10 +472,12 @@ void mouse(int button, int state, int x, int y)
         programUI();
         // seleciona um elemento
         selectShape(selector, storage->items, storage->top, fx, fy);
-        if(selector->selected != NULL)
+        if (selector->selected != NULL)
         {
             printf("Figura selecionada\n");
-        } else {
+        }
+        else
+        {
             printf("Nenhuma figura selecionada\n");
         }
 
@@ -483,7 +492,7 @@ void mouse(int button, int state, int x, int y)
 void mouseMove(int x, int y)
 {
 
-    if (currentOperation == TRANSLATE && waitingForClick && !createShapeMode && selector->selected != NULL )
+    if (currentOperation == TRANSLATE && waitingForClick && !createShapeMode && selector->selected != NULL)
     {
         int pos = selector->index; // posição da figura a ser transladada
         float fx = (float)x;
@@ -502,7 +511,7 @@ void mouseMove(int x, int y)
 
         glutPostRedisplay();
     }
-    else if (currentOperation == ROTATE && waitingForClick && !createShapeMode && selector->selected != NULL )
+    else if (currentOperation == ROTATE && waitingForClick && !createShapeMode && selector->selected != NULL)
     {
         int pos = selector->index; // posição da figura a ser transladada
 
@@ -546,7 +555,8 @@ void mouseMove(int x, int y)
         // inicia controle do cisalhamento
         if (!shearingStarted)
         {
-            if (s->num_points <= 0) return; // nada a fazer
+            if (s->num_points <= 0)
+                return; // nada a fazer
 
             beforeShearFig = malloc(sizeof(Shape));
             beforeShearFig->type = s->type;
@@ -554,7 +564,11 @@ void mouseMove(int x, int y)
             beforeShearFig->id = s->id;
             beforeShearFig->points = malloc(s->num_points * sizeof(float[3]));
 
-            if (!beforeShearFig->points) { free(beforeShearFig); return; } // checa malloc
+            if (!beforeShearFig->points)
+            {
+                free(beforeShearFig);
+                return;
+            } // checa malloc
 
             for (int i = 0; i < s->num_points; i++)
             {
@@ -599,9 +613,12 @@ void mouseMove(int x, int y)
         programUI();
         printf("Clique com o botao direito para confirmar o cisalhamento\n");
         printf("Clique nas setas para alternar entre cisalhamento horizontal e vertical\n");
-        if (currentShearType == SHEAR_HORIZONTAL) {
+        if (currentShearType == SHEAR_HORIZONTAL)
+        {
             printf("shx atual: %.3f\n", current_shx);
-        } else if (currentShearType == SHEAR_VERTICAL) {
+        }
+        else if (currentShearType == SHEAR_VERTICAL)
+        {
             printf("shy atual: %.3f\n", current_shy);
         }
         glutPostRedisplay();
@@ -611,7 +628,7 @@ void mouseMove(int x, int y)
 void mouseWheel(int wheel, int direction, int x, int y)
 {
 
-    if (currentOperation == SCALE && !createShapeMode && selector->selected != NULL )
+    if (currentOperation == SCALE && !createShapeMode && selector->selected != NULL)
     {
         int pos = selector->index; // posição da figura a ser transladada
         Shape *s = storage->items[pos];
@@ -654,7 +671,7 @@ void mouseWheel(int wheel, int direction, int x, int y)
 
         glutPostRedisplay();
     }
-    if (currentOperation == COLOR && !createShapeMode && selector->selected != NULL )
+    if (currentOperation == COLOR && !createShapeMode && selector->selected != NULL)
     {
         int pos = selector->index; // posição da figura a ser transladada
         Shape *s = storage->items[pos];
