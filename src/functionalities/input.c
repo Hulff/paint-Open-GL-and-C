@@ -25,6 +25,7 @@ typedef enum
     SHEAR,
     COLOR,
     NONE,
+    REFLECT,
     SELECTION,
 } Operation;
 
@@ -239,6 +240,17 @@ void teclado(unsigned char key, int x, int y)
             salvarPilhaComTimestamp(storage);
         }
         break;
+    case 'i': // Entra no modo de reflexão
+        if (verifyAvailability(storage, selector))
+        {
+            resetStates(); // Reseta estados de outras operações
+            currentOperation = REFLECT;
+            printf("Modo de Reflexao Ativado.\n");
+            printf("Pressione Seta CIMA para refletir no eixo X.\n");
+            printf("Pressione Seta DIREITA para refletir no eixo Y.\n");
+            printf("Pressione Seta BAIXO para refletir na origem.\n");
+        }
+        break;
     }
 
     glutPostRedisplay();
@@ -246,7 +258,37 @@ void teclado(unsigned char key, int x, int y)
 // ler as setas (sem uso ainda)
 void tecladoEspecial(int key, int x, int y)
 {
+    if (currentOperation == REFLECT && selector->selected != NULL) {
+        float cx, cy;
+        calcRealCenter(selector->selected, &cx, &cy);
 
+        switch (key) {
+            case GLUT_KEY_UP: // Reflexão no eixo X
+                printf("Refletindo no eixo X ...\n");
+                reflexao(selector->selected, cx, cy, 0);
+                break;
+
+            case GLUT_KEY_RIGHT: // Reflexão no eixo Y
+                printf("Refletindo no eixo Y ...\n");
+                reflexao(selector->selected, cx, cy, 1);
+                break;
+
+            case GLUT_KEY_DOWN: // Reflexão na origem
+                printf("Refletindo na origem ...\n");
+                reflexao(selector->selected, cx, cy, 2);
+                break;
+
+        }
+
+        // Depois de aplicar a reflexão, se quiser já sair do modo
+        currentOperation = NONE;
+        printf("Reflexao aplicada.\n");
+
+        glutPostRedisplay();
+        return;
+    }
+
+    // Caso contrário
     if (key == GLUT_KEY_UP) {
         printf("Seta ↑\n");
         currentShearType = SHEAR_VERTICAL;
@@ -264,6 +306,7 @@ void tecladoEspecial(int key, int x, int y)
         currentShearType = SHEAR_HORIZONTAL;
     }
 }
+
 // ler pos do clique do mouse
 void mouse(int button, int state, int x, int y)
 {

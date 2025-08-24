@@ -2,6 +2,7 @@
 #include "matrix.h"
 #include <math.h>
 #include <stdlib.h>
+#include "shape.h"
 
 void translate(float (*points)[3], int num_points, float xt, float yt)
 {
@@ -184,5 +185,52 @@ void cisalhamento_v(float (*points)[3], float (*originalPoints)[3], int num_poin
         points[i][0] = result[0][0] + cx;
         points[i][1] = result[1][0] + cy;
         points[i][2] = originalPoints[i][2]; // mantém z original
+    }
+}
+
+// Função para refletir a figura
+void reflexao(Shape *s, float cx, float cy, int type)
+{
+    // Matriz de reflexão
+    float reflexao_matrix[3][3] = {
+        {1, 0, 0},
+        {0, 1, 0},
+        {0, 0, 1}};
+
+    // Define a matriz baseada no tipo de reflexão
+    switch (type)
+    {
+    case 0: // Reflexão em torno do eixo X (horizontal)
+        reflexao_matrix[1][1] = -1.0f;
+        break;
+    case 1: // Reflexão em torno do eixo Y (vertical)
+        reflexao_matrix[0][0] = -1.0f;
+        break;
+    case 2: // Reflexão em torno da origem
+        reflexao_matrix[0][0] = -1.0f;
+        reflexao_matrix[1][1] = -1.0f;
+        break;
+    }
+    // Itera por todos os pontos da figura para aplicar a transformação
+    for (int i = 0; i < s->num_points; i++)
+    {
+        float px = s->points[i][0];
+        float py = s->points[i][1];
+
+        // Transladar para a origem (baseado no centro da figura)
+        px -= cx;
+        py -= cy;
+
+        // Aplicar a reflexão (multiplicação de matriz)
+        float new_px = px * reflexao_matrix[0][0];
+        float new_py = py * reflexao_matrix[1][1];
+
+        // Transladar de volta para a posição original
+        px = new_px + cx;
+        py = new_py + cy;
+
+        // Atualiza os pontos da figura
+        s->points[i][0] = px;
+        s->points[i][1] = py;
     }
 }

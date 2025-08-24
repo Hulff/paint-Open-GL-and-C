@@ -47,6 +47,7 @@ void keyBindsUI()
     printf("Pressione 't' para transladar uma figura.\n");
     printf("Pressione 'r' para rotacionar uma figura.\n");
     printf("Pressione 'e' para escala uma figura.\n");
+    printf("Pressione 'i' para Reflexao em uma figura.\n");
     printf("Pressione 'z' para cisalhar uma figura.\n");
     printf("Pressione 'c' para escolher a cor da figura selecionada figura.\n");
     printf("Pressione '' para apagar a ultima forma guardada na memoria.\n"); // tentar implementar
@@ -112,6 +113,7 @@ void programUI()
     printf("Pressione 't' para transladar uma figura.\n");
     printf("Pressione 'r' para rotacionar uma figura.\n");
     printf("Pressione 'e' para escala uma figura.\n");
+    printf("Pressione 'i' para Reflexao em uma figura.\n");
     printf("Pressione 'z' para cisalhar uma figura.\n");
     printf("Pressione 'c' para escolher a cor da figura selecionada figura.\n");
     printf("Pressione 's' para selecionar uma figura.\n");
