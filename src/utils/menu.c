@@ -54,6 +54,8 @@ void keyBindsUI()
     printf("Pressione 's' para selecionar uma figura.\n");
     printf("Pressione 'x' para apagar a figura selecionada.\n");
     printf("Pressione 'd' para salvar a figura atual.\n");
+    printf("Pressione 'a' para animar o desenho\n");
+
     printf("############################################\n");
     printf("Pressione 'q' voltar ao inicio.\n");
     printf("############################################\n");
@@ -122,6 +124,7 @@ void programUI()
     printf("Pressione 's' para selecionar uma figura.\n");
     printf("Pressione 'x' para apagar a figura selecionada.\n"); 
     printf("Pressione 'd' para salvar a figura atual.\n");
+    printf("Pressione 'a' para animar o desenho\n");
     printf("Pressione 'q' para fechar.\n");
     printf("############################################\n");
 }

@@ -747,13 +747,13 @@ bool** createDirectionsVector(int n){
     return directions;
 }
 
-float** createLimitsVector(int n){
-    bool **limits = malloc(n * sizeof(float *));
+// float** createLimitsVector(int n){
+//     bool **limits = malloc(n * sizeof(float *));
 
-    for (int i = 0; i < n; i++) limits[i] = malloc(2 * sizeof(float));
+//     for (int i = 0; i < n; i++) limits[i] = malloc(2 * sizeof(float));
 
-    return limits;
-}
+//     return limits;
+// }
 
 void animateAll(){
     Shape* s;
