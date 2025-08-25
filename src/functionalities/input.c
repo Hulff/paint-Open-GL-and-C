@@ -13,6 +13,7 @@
 #include "operations.h"
 #include "helper.h"
 #include "select.h"
+#include "drawings.h"
 
 extern float r, g, b;
 extern ShapeStack *storage; // pilha global de figuras (criado na Main)
@@ -23,18 +24,35 @@ typedef enum
     TRANSLATE,
     ROTATE,
     SCALE,
+    SHEAR,
     COLOR,
     NONE,
+    REFLECT,
     SELECTION,
 } Operation;
+
+typedef enum
+{
+    SHEAR_HORIZONTAL,
+    SHEAR_VERTICAL
+} ShearType;
 
 bool waitingForClick = false; // controla captura de ponto
 bool createShapeMode = false; // controla criação de forma
 bool rotationStarted = false; // controla início da rotação
+bool shearingStarted = false; // controla início do cisalhamento
 
 int n_points = 0; // número de pontos criados
 
 float last_angle = 0; // ângulo anterior para rotação
+
+ShearType currentShearType = SHEAR_HORIZONTAL; // padrão
+float last_mouse_x = 0;                        // posição anterior do mouse para cisalhamento horizontal
+float current_shx = 0.0f;                      // valor atual do cisalhamento horizontal
+float last_mouse_y = 0;                        // posição anterior do mouse para cisalhamento vertical
+float current_shy = 0.0f;                      // valor atual do cisalhamento vertical
+float shear_center_x = 0.0f, shear_center_y = 0.0f;
+Shape *beforeShearFig = NULL;
 
 float current_scale = 0;      // escala incial
 float center_scale_x = 0;     // centro x da escala
@@ -63,18 +81,18 @@ void resetStates()
     currentOperation = NONE; // cancelar operação atual
     n_points = 0;            // reseta o numero de pontos
     rotationStarted = false; // reseta o estado de rotação
+    shearingStarted = false; // reseta o estado de cisalhamento
     last_angle = 0;          // reseta o ângulo da rotação incremental
     current_scale = 0;       // reseta a escala
     center_scale_x = 0;      // reseta o centro x da escala
     center_scale_y = 0;      // reseta o centro y da escala
     selectedColorPos = 0;    // reseta a posição da cor escolhida
 
-    if (beforeScaleFig != NULL)
+    if (beforeShearFig != NULL)
     {
-        // libera memória da figura original antes de escalar
-        free(beforeScaleFig->points);
-        free(beforeScaleFig);
-        beforeScaleFig = NULL;
+        free(beforeShearFig->points);
+        free(beforeShearFig);
+        beforeShearFig = NULL;
     }
 }
 
@@ -184,20 +202,68 @@ void teclado(unsigned char key, int x, int y)
         }
 
         break;
+    case 'z': // cisalhar horizontal
+        if (verifyAvailability(storage, selector))
+        {
+
+            resetStates(); // resetar estados
+
+            currentOperation = SHEAR;
+            printf("Mova o mouse no canvas para cisalhar a figura\n");
+            waitingForClick = true;
+            createShapeMode = false;
+        }
+
+        break;
     case 's': // seleção
         if (storage->top < 0)
         {
-            // Não há figuras para transformar
+            // Não há figuras para Selecionar
             printf("Nenhuma figura para selecionar.\n");
         }
         else
         {
-
-            resetStates(); // resetar estados
+            selector->selected = NULL; // reseta seleção
+            resetStates();             // resetar estados
             currentOperation = SELECTION;
             waitingForClick = true;
             setSelectionMode(selector, 1);
             printf("Clique na figura que deseja selecionar\n");
+        }
+        break;
+    case 'd': // registrar desenho
+        if (storage->top < 0)
+        {
+            // Não há figuras para registrar
+            printf("Nenhuma figura para registrar.\n");
+        }
+        else
+        {
+            resetStates(); // resetar estados
+            salvarPilhaComTimestamp(storage);
+        }
+        break;
+    case 'i': // Entra no modo de reflexão
+        if (verifyAvailability(storage, selector))
+        {
+            resetStates(); // Reseta estados de outras operações
+            currentOperation = REFLECT;
+            printf("Modo de Reflexao Ativado.\n");
+            printf("Pressione Seta CIMA para refletir no eixo X.\n");
+            printf("Pressione Seta DIREITA para refletir no eixo Y.\n");
+            printf("Pressione Seta BAIXO para refletir na origem.\n");
+        }
+        break;
+    case 'x': // deleta a figura selecionada
+        if (verifyAvailability(storage, selector))
+        {
+            resetStates(); // Reseta estados de outras operações
+            currentOperation = REFLECT;
+            removerFiguraPorIndice(storage, selector->index);
+            printf("Figura deletada.\n");
+            selector->selected = NULL; // reseta seleção
+            selector->index = -1;
+            setSelectionMode(selector, 0); // desativa modo seleção
         }
         break;
     case 'a':
@@ -219,17 +285,61 @@ void teclado(unsigned char key, int x, int y)
 }
 // ler as setas (sem uso ainda)
 void tecladoEspecial(int key, int x, int y)
+
 {
+    if (currentOperation == REFLECT && selector->selected != NULL)
+    {
+        float cx, cy;
+        calcRealCenter(selector->selected, &cx, &cy);
+
+        switch (key)
+        {
+        case GLUT_KEY_UP: // Reflexão no eixo X
+            printf("Refletindo no eixo X ...\n");
+            reflexao(selector->selected->points, selector->selected->num_points, cx, cy, 0);
+            break;
+
+        case GLUT_KEY_RIGHT: // Reflexão no eixo Y
+            printf("Refletindo no eixo Y ...\n");
+            reflexao(selector->selected->points, selector->selected->num_points, cx, cy, 1);
+            break;
+
+        case GLUT_KEY_DOWN: // Reflexão na origem
+            printf("Refletindo na origem ...\n");
+            reflexao(selector->selected->points, selector->selected->num_points, cx, cy, 2);
+            break;
+        }
+
+        // Depois de aplicar a reflexão, se quiser já sair do modo
+        currentOperation = NONE;
+        printf("Reflexao aplicada.\n");
+
+        glutPostRedisplay();
+        return;
+    }
 
     if (key == GLUT_KEY_UP)
+    {
         printf("Seta ↑\n");
-    if (key == GLUT_KEY_DOWN)
+        currentShearType = SHEAR_VERTICAL;
+    }
+    if (currentOperation == SHEAR && key == GLUT_KEY_DOWN)
+    {
         printf("Seta ↓\n");
-    if (key == GLUT_KEY_LEFT)
+        currentShearType = SHEAR_VERTICAL;
+    }
+    if (currentOperation == SHEAR && key == GLUT_KEY_LEFT)
+    {
         printf("Seta ←\n");
-    if (key == GLUT_KEY_RIGHT)
+        currentShearType = SHEAR_HORIZONTAL;
+    }
+    if (currentOperation == SHEAR && key == GLUT_KEY_RIGHT)
+    {
         printf("Seta →\n");
+        currentShearType = SHEAR_HORIZONTAL;
+    }
 }
+
 // ler pos do clique do mouse
 void mouse(int button, int state, int x, int y)
 {
@@ -390,9 +500,16 @@ void mouse(int button, int state, int x, int y)
         float fy = (float)(windH - y);
 
         programUI();
-        printf("buscando figura mais proxima de (%.2f, %.2f)\n", fx, fy);
         // seleciona um elemento
         selectShape(selector, storage->items, storage->top, fx, fy);
+        if (selector->selected != NULL)
+        {
+            printf("Figura selecionada\n");
+        }
+        else
+        {
+            printf("Nenhuma figura selecionada\n");
+        }
 
         glutPostRedisplay();
     }
@@ -455,6 +572,85 @@ void mouseMove(int x, int y)
 
         programUI();
         printf("Clique com o botao direito para confirmar a rotação\n");
+        glutPostRedisplay();
+    }
+    else if (currentOperation == SHEAR && waitingForClick && !createShapeMode)
+    {
+        int pos = storage->top;
+        Shape *s = storage->items[pos];
+
+        float fx = (float)x;
+        float fy = (float)(windH - y);
+
+        // inicia controle do cisalhamento
+        if (!shearingStarted)
+        {
+            if (s->num_points <= 0)
+                return; // nada a fazer
+
+            beforeShearFig = malloc(sizeof(Shape));
+            beforeShearFig->type = s->type;
+            beforeShearFig->num_points = s->num_points;
+            beforeShearFig->id = s->id;
+            beforeShearFig->points = malloc(s->num_points * sizeof(float[3]));
+
+            if (!beforeShearFig->points)
+            {
+                free(beforeShearFig);
+                return;
+            } // checa malloc
+
+            for (int i = 0; i < s->num_points; i++)
+            {
+                beforeShearFig->points[i][0] = s->points[i][0];
+                beforeShearFig->points[i][1] = s->points[i][1];
+                beforeShearFig->points[i][2] = s->points[i][2];
+            }
+
+            calcRealCenter(beforeShearFig, &shear_center_x, &shear_center_y);
+            last_mouse_x = fx;
+            last_mouse_y = fy;
+            current_shx = 0.0f;
+            current_shy = 0.0f;
+            shearingStarted = true;
+        }
+
+        // deslocamento horizontal desde o último movimento
+        float delta_x = fx - last_mouse_x;
+        float delta_y = fy - last_mouse_y;
+
+        // sensibilidade: ajuste conforme achar confortável
+        float sensibilidade = 0.01f;
+
+        if (currentShearType == SHEAR_HORIZONTAL)
+        {
+            // atualiza cisalhamento acumulado
+            current_shx += delta_x * sensibilidade;
+            // aplica o cisalhamento em torno do centro (usando a figura congelada)
+            cisalhamento_h(s->points, beforeShearFig->points, s->num_points, shear_center_x, shear_center_y, current_shx);
+        }
+        else if (currentShearType == SHEAR_VERTICAL)
+        {
+            // atualiza cisalhamento acumulado
+            current_shy += delta_y * sensibilidade;
+            // aplica o cisalhamento em torno do centro (usando a figura congelada)
+            cisalhamento_v(s->points, beforeShearFig->points, s->num_points, shear_center_x, shear_center_y, current_shy);
+        }
+
+        last_mouse_x = fx;
+        last_mouse_y = fy;
+
+        programUI();
+        printf("Clique com o botao direito para confirmar o cisalhamento\n");
+        printf("Clique nas setas para alternar entre cisalhamento horizontal e vertical\n");
+        if (currentShearType == SHEAR_HORIZONTAL)
+        {
+            printf("shx atual: %.3f\n", current_shx);
+        }
+        else if (currentShearType == SHEAR_VERTICAL)
+        {
+            printf("shy atual: %.3f\n", current_shy);
+        }
         glutPostRedisplay();
     }
 }

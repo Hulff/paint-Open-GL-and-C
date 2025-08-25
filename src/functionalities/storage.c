@@ -38,6 +38,27 @@ Shape *removerFigura(ShapeStack *pilha)
     }
     return pilha->items[pilha->top--];
 }
+// Remove figura pelo indice
+Shape *removerFiguraPorIndice(ShapeStack *pilha, int indice)
+{
+    if (pilha->top == -1)
+    {
+        printf("Erro: pilha vazia! Nada para remover.\n");
+        return NULL;
+    }
+    if (indice < 0 || indice > pilha->top)
+    {
+        printf("Erro: índice inválido!\n");
+        return NULL;
+    }
+    Shape *figura = pilha->items[indice];
+    for (int i = indice; i < pilha->top; i++)
+    {
+        pilha->items[i] = pilha->items[i + 1];
+    }
+    pilha->top--;
+    return figura;
+}   
 
 Shape *buscarFigura(ShapeStack *pilha, int id)
 {

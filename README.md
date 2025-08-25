@@ -42,12 +42,12 @@ make -f Makefile.linux clean → apaga arquivos temporários para recompilar do 
 * [X] Escalar em relação ao centro do objeto
 
   * Não se aplica a pontos
-* [ ] Reflexão
-* [ ] Cisalhamento
+* [X] Reflexão
+* [X] Cisalhamento
 
 ### 4. Interação com o Usuário
 
-* [ ] Implementar eventos com:
+* [X] Implementar eventos com:
 
   * [X] Clique do mouse
   * [X] Botão de rolagem do mouse
@@ -57,8 +57,8 @@ make -f Makefile.linux clean → apaga arquivos temporários para recompilar do 
 
 ## 📂 Funcionalidades adicionais (2,0 pontos)
 
-* [ ] **Salvar** objetos geométricos em arquivo
-* [ ] **Carregar** objetos geométricos de arquivo
+* [X] **Salvar** objetos geométricos em arquivo
+* [X] **Carregar** objetos geométricos de arquivo
 
 ---
 
