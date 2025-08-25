@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#include <stdlib.h>
+
 #include "shape.h"
 #include "storage.h"
 #include "menu.h"
@@ -75,6 +77,20 @@ void resetStates()
         beforeScaleFig = NULL;
     }
 }
+
+// ---- ANIMATION ----------
+
+bool animationStarted = false;
+bool stopAnimation = false;
+
+bool **directions;
+
+bool** createDirectionsVector(int n);
+
+void animateAll();
+void updateAll(int value);
+
+// ----------
 
 // ler teclado
 void teclado(unsigned char key, int x, int y)
@@ -185,17 +201,18 @@ void teclado(unsigned char key, int x, int y)
         }
         break;
     case 'a':
+        if(animationStarted){
+            stopAnimation = true;
+            break;
+        }
+
         resetStates();
 
-        ShapeStack* storageBackup = storage;
-        storage = criarPilha(maxFig);
+        animationStarted = true;
 
-        animateSquare();
-
-        // criar forma
-        // animar
-        // apagar formas da animacao
-        // reverter storage
+        directions = createDirectionsVector(storage->top);
+        
+        glutTimerFunc(16, updateAll, 0);
     }
 
     glutPostRedisplay();
@@ -517,34 +534,98 @@ void mouseWheel(int wheel, int direction, int x, int y)
     }
 }
 
-void animateSquare()
-{
-    float angle = 0.0f;
+// ----------
 
-    Shape *s = createShape(4, POLYGON);
-    s = storage->items[storage->top];
-    
-    s->points[0][0] = 200;
-    s->points[0][1] = 100;
-    s->points[0][2] = 1;
-    
-    s->points[0][0] = 400;
-    s->points[0][1] = 100;
-    s->points[0][2] = 1;  
+float **limits;
 
-    s->points[0][0] = 200;
-    s->points[0][1] = 300;
-    s->points[0][2] = 1;  
+bool** createDirectionsVector(int n){
+    bool **directions = malloc(n * sizeof(bool *));
 
-    s->points[0][0] = 200;
-    s->points[0][1] = 300;
-    s->points[0][2] = 1;
+    for (int i = 0; i < n; i++){
+        directions[i] = malloc(2 * sizeof(bool));
 
-    float cx = 0, cy = 0;
-    calcRealCenter(s, &cx, &cy);
+        directions[i][0] = true;
+        directions[i][1] = true;
+    }
 
-    rotate(s->points, s->num_points, angle, cx, cy);
+    return directions;
+}
 
-    programUI();
+float** createLimitsVector(int n){
+    bool **limits = malloc(n * sizeof(float *));
+
+    for (int i = 0; i < n; i++) limits[i] = malloc(2 * sizeof(float));
+
+    return limits;
+}
+
+void animateAll(){
+    Shape* s;
+
+    // for(int i = 0; i < storage->top; i++){
+    //     s = storage->items[i];
+
+    //     float hx = 600; // highest x
+    //     float hy = 400;
+
+    //     float lx = 0; // lowest x
+    //     float ly = 0;
+
+    //     for(int j = 0; j < s->num_points; j++){
+    //         if(s->points[j][2] != 1) continue;
+
+    //         if(s->points[j][0] > hx) hx = s->points[j][0];
+    //         if(s->points[j][1] > hy) hy = s->points[j][1];
+
+    //         if(s->points[j][0] < lx) lx = s->points[j][0];
+    //         if(s->points[j][1] < ly) ly = s->points[j][1];
+    //     }
+
+    //     limits[i][0] = 600 - (hx - lx);
+    //     limits[i][1] = 400 - (hy - ly);
+    // }
+
+    for(int i = 0; i < storage->top; i++){
+        s = storage->items[i];
+
+        float min_x = s->points[0][0], max_x = s->points[0][0];
+        float min_y = s->points[0][1], max_y = s->points[0][1];
+
+        for (int j = 1; j < s->num_points; j++) {
+            if (s->points[j][2] != 1) continue;
+            if (s->points[j][0] < min_x) min_x = s->points[j][0];
+            if (s->points[j][0] > max_x) max_x = s->points[j][0];
+            if (s->points[j][1] < min_y) min_y = s->points[j][1];
+            if (s->points[j][1] > max_y) max_y = s->points[j][1];
+        }
+
+        if (min_x <= 0) directions[i][0] = true;
+        if (max_x >= 600) directions[i][0] = false;
+        if (min_y <= 0) directions[i][1] = true;
+        if (max_y >= 400) directions[i][1] = false;
+
+        float x = 5;
+        if(!directions[i][0]) x = -5;
+
+        float y = 5;
+        if(!directions[i][1]) y = -5;
+
+        translate(s->points, s->num_points, x, y);
+    }
+
     glutPostRedisplay();
+}
+
+void updateAll(int value){
+    if(stopAnimation)
+    {
+        animationStarted = false;
+        stopAnimation = false;
+
+        return;
+    }
+
+    animateAll();
+
+    glutTimerFunc(16, updateAll, 0);
 }
