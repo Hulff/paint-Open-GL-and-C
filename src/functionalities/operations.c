@@ -250,8 +250,6 @@ void reflexao(float (*points)[3], int num_points, float cx, float cy, int tipo)
 // Funções do quickhull, sempre que adicionar um ponto ao polígono convexo,
 // sempre colocar no sentido horário
 
-
-
 float distancia(Point3 p1, Point3 p2, Point3 p3)
 {
     float a = p1[1] - p2[1];
@@ -267,10 +265,13 @@ Point3 *pontos_acima(Point3 p1, Point3 p2, Point3 *points, int num_points, int *
 
     for (int i = 0; i < num_points; i++)
     {
-        float d = (p2[0] - p1[0]) * (points[i][1] - p1[1]) - (p2[1] - p1[1]) * (points[i][0] - p1[0]);
-        if (d > 0)
+        if (points[i][2] == 1)
         {
-            memcpy(acima[count++], points[i], sizeof(Point3));
+            float d = (p2[0] - p1[0]) * (points[i][1] - p1[1]) - (p2[1] - p1[1]) * (points[i][0] - p1[0]);
+            if (d > 0)
+            {
+                memcpy(acima[count++], points[i], sizeof(Point3));
+            }
         }
     }
 
@@ -285,10 +286,13 @@ Point3 *pontos_abaixo(Point3 p1, Point3 p2, Point3 *points, int num_points, int 
 
     for (int i = 0; i < num_points; i++)
     {
-        float d = (p2[0] - p1[0]) * (points[i][1] - p1[1]) - (p2[1] - p1[1]) * (points[i][0] - p1[0]);
-        if (d < 0)
+        if (points[i][2] == 1)
         {
-            memcpy(abaixo[count++], points[i], sizeof(Point3));
+            float d = (p2[0] - p1[0]) * (points[i][1] - p1[1]) - (p2[1] - p1[1]) * (points[i][0] - p1[0]);
+            if (d < 0)
+            {
+                memcpy(abaixo[count++], points[i], sizeof(Point3));
+            }
         }
     }
 
@@ -312,11 +316,14 @@ Point3 *quickhull2(Point3 p1, Point3 p2, Point3 *points, int num_points, int lad
     int idx = -1;
     for (int i = 0; i < num_points; i++)
     {
-        float d = distancia(p1, p2, points[i]);
-        if (d > max_dist)
+        if (points[i][2] == 1)
         {
-            max_dist = d;
-            idx = i;
+            float d = distancia(p1, p2, points[i]);
+            if (d > max_dist)
+            {
+                max_dist = d;
+                idx = i;
+            }
         }
     }
 
@@ -328,7 +335,7 @@ Point3 *quickhull2(Point3 p1, Point3 p2, Point3 *points, int num_points, int lad
     int count_resto = 0;
     for (int i = 0; i < num_points; i++)
     {
-        if (i != idx)
+        if (i != idx && points[i][2] == 1) // só visíveis
         {
             memcpy(resto[count_resto++], points[i], sizeof(Point3));
         }
@@ -375,10 +382,14 @@ Point3 *quickhull(Point3 *points, int num_points, int *out_count)
     int min_x = 0, max_x = 0;
     for (int i = 1; i < num_points; i++)
     {
-        if (points[i][0] < points[min_x][0])
-            min_x = i;
-        if (points[i][0] > points[max_x][0])
-            max_x = i;
+        if (points[i][2] == 1) // leva em consideração apenas pontos visíveis
+        {
+
+            if (points[i][0] < points[min_x][0])
+                min_x = i;
+            if (points[i][0] > points[max_x][0])
+                max_x = i;
+        }
     }
 
     int count1, count2;
