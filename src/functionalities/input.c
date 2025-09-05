@@ -3,8 +3,8 @@
 #include <GL/glut.h>
 #include <stdio.h>
 #include <math.h>
-
 #include <stdlib.h>
+#include <string.h>
 
 #include "shape.h"
 #include "storage.h"
@@ -53,7 +53,6 @@ float last_mouse_y = 0;                        // posição anterior do mouse pa
 float current_shy = 0.0f;                      // valor atual do cisalhamento vertical
 float shear_center_x = 0.0f, shear_center_y = 0.0f;
 Shape *beforeShearFig = NULL;
-Shape *QuickHullFig = NULL;
 
 float current_scale = 0;      // escala incial
 float center_scale_x = 0;     // centro x da escala
@@ -129,21 +128,29 @@ void teclado(unsigned char key, int x, int y)
         b = 1;
         break;
     case 'q':
-        //aplicar quickhull
         if (verifyAvailability(storage, selector))
         {
-            if(selector->selected->num_points < 3){
-                printf("A figura selecionada deve ter no minimo 3 pontos para aplicar o QuickHull\n");
+            if (selector->selected->num_points < 3)
+            {
+                printf("A figura selecionada deve ter no mínimo 3 pontos para aplicar o QuickHull\n");
                 break;
             }
-            printf("aplicando transformação na figura selecionada\n");
+
+            printf("Aplicando transformação QuickHull na figura selecionada\n");
             resetStates(); // resetar estados
-            QuickHullFig = createShape(selector->selected->num_points, selector->selected->type);
-            QuickHullFig->points = quickhull(selector->selected->points, selector->selected->num_points, &QuickHullFig->num_points);
-            storage->items[selector->index] = QuickHullFig; // sobrescreve a função antiga com a forma atualizada
-            selector->selected = QuickHullFig; // atualiza o selector para a nova figura
+
+            int new_num_points;
+            Point3 *new_points = quickhull(selector->selected->points, selector->selected->num_points, &new_num_points);
+
+
+            // Atualiza os pontos da figura selecionada
+            memcpy(selector->selected->points, new_points, sizeof(Point3) * new_num_points);
+            selector->selected->num_points = new_num_points;
+
+            free(new_points);
         }
         break;
+
     case 'c':
         resetStates(); // resetar estados
         printf("use o scroll para mudar as cores\n");

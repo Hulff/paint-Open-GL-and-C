@@ -369,6 +369,7 @@ Point3 *quickhull2(Point3 p1, Point3 p2, Point3 *points, int num_points, int lad
 
     *out_count = count_feixo;
 
+
     free(set1);
     free(set2);
     free(feixo1);
@@ -376,7 +377,6 @@ Point3 *quickhull2(Point3 p1, Point3 p2, Point3 *points, int num_points, int lad
 
     return feixo_convexo;
 }
-
 Point3 *quickhull(Point3 *points, int num_points, int *out_count)
 {
     int min_x = 0, max_x = 0;
@@ -384,7 +384,6 @@ Point3 *quickhull(Point3 *points, int num_points, int *out_count)
     {
         if (points[i][2] == 1) // leva em consideração apenas pontos visíveis
         {
-
             if (points[i][0] < points[min_x][0])
                 min_x = i;
             if (points[i][0] > points[max_x][0])
@@ -415,6 +414,32 @@ Point3 *quickhull(Point3 *points, int num_points, int *out_count)
     free(bottom);
     free(feixo_top);
     free(feixo_bottom);
+
+    // --- Ordenar o casco convexo antes de retornar ---
+    float cx = 0, cy = 0;
+    for (int i = 0; i < *out_count; i++)
+    {
+        cx += feixo_convexo[i][0];
+        cy += feixo_convexo[i][1];
+    }
+    cx /= *out_count;
+    cy /= *out_count;
+
+    for (int i = 0; i < *out_count - 1; i++)
+    {
+        for (int j = i + 1; j < *out_count; j++)
+        {
+            float ai = atan2f(feixo_convexo[i][1] - cy, feixo_convexo[i][0] - cx);
+            float aj = atan2f(feixo_convexo[j][1] - cy, feixo_convexo[j][0] - cx);
+            if (ai > aj)
+            {
+                float tmp[3];
+                memcpy(tmp, feixo_convexo[i], sizeof(Point3));
+                memcpy(feixo_convexo[i], feixo_convexo[j], sizeof(Point3));
+                memcpy(feixo_convexo[j], tmp, sizeof(Point3));
+            }
+        }
+    }
 
     return feixo_convexo;
 }
