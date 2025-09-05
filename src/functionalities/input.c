@@ -293,13 +293,13 @@ void teclado(unsigned char key, int x, int y)
             break;
         }
 
-        resetStates();
+      //  resetStates();
 
-        animationStarted = true;
+       // animationStarted = true;
 
-        directions = createDirectionsVector(storage->top);
+       // directions = createDirectionsVector(storage->top);
         
-        glutTimerFunc(16, updateAll, 0);
+       // glutTimerFunc(16, updateAll, 0);
     }
 
 
