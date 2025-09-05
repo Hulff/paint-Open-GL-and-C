@@ -576,7 +576,7 @@ void mouseMove(int x, int y)
     }
     else if (currentOperation == SHEAR && waitingForClick && !createShapeMode)
     {
-        int pos = storage->top;
+        int pos = selector->index; // posição da figura a ser transladada
         Shape *s = storage->items[pos];
 
         float fx = (float)x;

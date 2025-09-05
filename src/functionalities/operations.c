@@ -1,5 +1,7 @@
 
 #include "matrix.h"
+#include "operations.h"
+
 #include <math.h>
 #include <stdlib.h>
 #include "shape.h"
@@ -248,269 +250,160 @@ void reflexao(float (*points)[3], int num_points, float cx, float cy, int tipo)
 // Funções do quickhull, sempre que adicionar um ponto ao polígono convexo,
 // sempre colocar no sentido horário
 
-float distancia(float p1[3], float p2[3], float p3[3])
+
+
+float distancia(Point3 p1, Point3 p2, Point3 p3)
 {
-    // calcula distância de p3 à linha p1-p2
     float a = p1[1] - p2[1];
     float b = p2[0] - p1[0];
     float c = p1[0] * p2[1] - p2[0] * p1[1];
-    return fabs(a*p3[0] + b*p3[1] + c) / sqrt(a*a + b*b);
-
+    return fabs(a * p3[0] + b * p3[1] + c) / sqrt(a * a + b * b);
 }
 
-float* pontos_acima(float p1[3], float p2[3], float (*points)[3], int num_points) {
-    // retorna pontos acima da linha p1-p2
-    float (*acima)[3] = malloc(15 * sizeof *acima); // aloca espaço para 15 pontos
+Point3 *pontos_acima(Point3 p1, Point3 p2, Point3 *points, int num_points, int *out_count)
+{
+    Point3 *acima = malloc(15 * sizeof(Point3));
     int count = 0;
 
-    if (p2[0] - p1[0] == 0) {
-        return NULL;
-    }
-
-    float m = (p2[1] - p1[1]) / (p2[0] - p1[0]);
-    float c = - m * p1[0] + p1[1];
-
-    for (int i = 0; i < num_points; i++) {
-        if (points[i][1] > m * points[i][0] + c) {
-            acima[count][0] = points[i][0];
-            acima[count][1] = points[i][1];
-            acima[count][2] = points[i][2];
-            count++;
+    for (int i = 0; i < num_points; i++)
+    {
+        float d = (p2[0] - p1[0]) * (points[i][1] - p1[1]) - (p2[1] - p1[1]) * (points[i][0] - p1[0]);
+        if (d > 0)
+        {
+            memcpy(acima[count++], points[i], sizeof(Point3));
         }
     }
 
+    *out_count = count;
     return acima;
 }
 
-float* pontos_abaixo(float p1[3], float p2[3], float (*points)[3], int num_points) {
-    // retorna pontos abaixo da linha p1-p2
-    float (*abaixo)[3] = malloc(15 * sizeof *abaixo); // aloca espaço para 15 pontos
+Point3 *pontos_abaixo(Point3 p1, Point3 p2, Point3 *points, int num_points, int *out_count)
+{
+    Point3 *abaixo = malloc(15 * sizeof(Point3));
     int count = 0;
 
-    if (p2[0] - p1[0] == 0) {
-        return NULL;
-    }
-
-    float m = (p2[1] - p1[1]) / (p2[0] - p1[0]);
-    float c = - m * p1[0] + p1[1];
-
-    for (int i = 0; i < num_points; i++) {
-        if (points[i][1] < m * points[i][0] + c) {
-            abaixo[count][0] = points[i][0];
-            abaixo[count][1] = points[i][1];
-            abaixo[count][2] = points[i][2];
-            count++;
+    for (int i = 0; i < num_points; i++)
+    {
+        float d = (p2[0] - p1[0]) * (points[i][1] - p1[1]) - (p2[1] - p1[1]) * (points[i][0] - p1[0]);
+        if (d < 0)
+        {
+            memcpy(abaixo[count++], points[i], sizeof(Point3));
         }
     }
 
+    *out_count = count;
     return abaixo;
 }
 
-float* quickhull2 (float p1[3], float p2[3], float (*points)[3], int num_points, int lado) {
-    // retorna pontos do casco convexo entre p1 e p2
-    // se lado = 1, pontos acima da linha p1-p2
-    // se lado = -1, pontos abaixo da linha p1-p2
+Point3 *quickhull2(Point3 p1, Point3 p2, Point3 *points, int num_points, int lado, int *out_count)
+{
+    Point3 *feixo_convexo = malloc(15 * sizeof(Point3));
+    int count_feixo = 0;
 
-    if (num_points == 0 || points == NULL || p1 == NULL || p2 == NULL) {
-        return NULL;
+    if (num_points == 0 || points == NULL)
+    {
+        *out_count = 0;
+        return feixo_convexo;
     }
 
-    float (*feixo_convexo)[3] = malloc(15 * sizeof *feixo_convexo); // aloca espaço para 15 pontos
-
-    float maior_distancia = -1;
-    float ponto_mais_distante[3];
-
-    for (int i = 0; i < num_points; i++) {
+    // ponto mais distante da linha
+    float max_dist = -1;
+    int idx = -1;
+    for (int i = 0; i < num_points; i++)
+    {
         float d = distancia(p1, p2, points[i]);
-        if (d > maior_distancia) {
-            maior_distancia = d;
-            ponto_mais_distante[0] = points[i][0];
-            ponto_mais_distante[1] = points[i][1];
-            ponto_mais_distante[2] = points[i][2];
+        if (d > max_dist)
+        {
+            max_dist = d;
+            idx = i;
         }
     }
 
-    // remover ponto_mais_distante de points
-    float (*resto_pontos)[3] = malloc(15 * sizeof *resto_pontos);
+    Point3 far;
+    memcpy(far, points[idx], sizeof(Point3));
+
+    // criar resto dos pontos sem ponto mais distante
+    Point3 resto[15];
     int count_resto = 0;
-    for (int i = 0; i < num_points; i++) {
-        if (points[i][0] != ponto_mais_distante[0] || points[i][1] != ponto_mais_distante[1]) {
-            resto_pontos[count_resto][0] = points[i][0];
-            resto_pontos[count_resto][1] = points[i][1];
-            resto_pontos[count_resto][2] = points[i][2];
-            count_resto++;
+    for (int i = 0; i < num_points; i++)
+    {
+        if (i != idx)
+        {
+            memcpy(resto[count_resto++], points[i], sizeof(Point3));
         }
     }
 
-    float* ponto1_acima = pontos_acima(p1, ponto_mais_distante, resto_pontos, count_resto);
-    float* ponto1_abaixo = pontos_abaixo(p1, ponto_mais_distante, resto_pontos, count_resto);
-    float* ponto2_acima = pontos_acima(ponto_mais_distante, p2, resto_pontos, count_resto);
-    float* ponto2_abaixo = pontos_abaixo(ponto_mais_distante, p2, resto_pontos, count_resto);
+    int count1, count2;
+    Point3 *set1;
+    Point3 *set2;
 
-    if (lado == 1) {
-        float* feixo1[3] = quickhull2(p1, ponto_mais_distante, ponto1_acima, count_resto, lado);
-        float* feixo2[3] = quickhull2(ponto_mais_distante, p2, ponto2_acima, count_resto, lado);
-
-        // combinar feixo1 + ponto_mais_distante + feixo2
-        int count_feixo = 0;
-        if (feixo1 != NULL) {
-            for (int i = 0; i < 15; i++) {
-                if (feixo1[i][0] == 0 && feixo1[i][1] == 0) break;
-                feixo_convexo[count_feixo][0] = feixo1[i][0];
-                feixo_convexo[count_feixo][1] = feixo1[i][1];
-                feixo_convexo[count_feixo][2] = feixo1[i][2];
-                count_feixo++;
-            }
-            free(feixo1);
-        }
-
-        feixo_convexo[count_feixo][0] = ponto_mais_distante[0];
-        feixo_convexo[count_feixo][1] = ponto_mais_distante[1];
-        feixo_convexo[count_feixo][2] = ponto_mais_distante[2];
-        count_feixo++;
-
-        if (feixo2 != NULL) {
-            for (int i = 0; i < 15; i++) {
-                if (feixo2[i][0] == 0 && feixo2[i][1] == 0) break;
-                feixo_convexo[count_feixo][0] = feixo2[i][0];
-                feixo_convexo[count_feixo][1] = feixo2[i][1];
-                feixo_convexo[count_feixo][2] = feixo2[i][2];
-                count_feixo++;
-            }
-            free(feixo2);
-        }
-
-    } else if (lado == -1) {
-        float* feixo1[3] = quickhull2(p1, ponto_mais_distante, ponto1_abaixo, count_resto, lado);
-        float* feixo2[3] = quickhull2(ponto_mais_distante, p2, ponto2_abaixo, count_resto, lado);
-
-        // combinar feixo1 + ponto_mais_dist
-        int count_feixo = 0;
-        if (feixo1 != NULL) {
-            for (int i = 0; i < 15; i++) {
-                if (feixo1[i][0] == 0 && feixo1[i][1] == 0) break;
-                feixo_convexo[count_feixo][0] = feixo1[i][0];
-                feixo_convexo[count_feixo][1] = feixo1[i][1];
-                feixo_convexo[count_feixo][2] = feixo1[i][2];
-                count_feixo++;
-            }
-            free(feixo1);
-        }
-
-        feixo_convexo[count_feixo][0] = ponto_mais_distante[0];
-        feixo_convexo[count_feixo][1] = ponto_mais_distante[1];
-        feixo_convexo[count_feixo][2] = ponto_mais_distante[2];
-        count_feixo++;
-
-        if (feixo2 != NULL) {
-            for (int i = 0; i < 15; i++) {
-                if (feixo2[i][0] == 0 && feixo2[i][1] == 0) break;
-                feixo_convexo[count_feixo][0] = feixo2[i][0];
-                feixo_convexo[count_feixo][1] = feixo2[i][1];
-                feixo_convexo[count_feixo][2] = feixo2[i][2];
-                count_feixo++;
-            }
-            free(feixo2);
-        }
+    if (lado == 1)
+    {
+        set1 = pontos_acima(p1, far, resto, count_resto, &count1);
+        set2 = pontos_acima(far, p2, resto, count_resto, &count2);
+    }
+    else
+    {
+        set1 = pontos_abaixo(p1, far, resto, count_resto, &count1);
+        set2 = pontos_abaixo(far, p2, resto, count_resto, &count2);
     }
 
-    free(resto_pontos);
-    free(ponto1_acima);
-    free(ponto1_abaixo);
-    free(ponto2_acima);
-    free(ponto2_abaixo);
+    int out1_count, out2_count;
+    Point3 *feixo1 = quickhull2(p1, far, set1, count1, lado, &out1_count);
+    Point3 *feixo2 = quickhull2(far, p2, set2, count2, lado, &out2_count);
+
+    // combinar feixo1 + ponto mais distante + feixo2
+    for (int i = 0; i < out1_count; i++)
+        memcpy(feixo_convexo[count_feixo++], feixo1[i], sizeof(Point3));
+    memcpy(feixo_convexo[count_feixo++], far, sizeof(Point3));
+    for (int i = 0; i < out2_count; i++)
+        memcpy(feixo_convexo[count_feixo++], feixo2[i], sizeof(Point3));
+
+    *out_count = count_feixo;
+
+    free(set1);
+    free(set2);
+    free(feixo1);
+    free(feixo2);
 
     return feixo_convexo;
-    
 }
 
-float* quickhull(float (*points)[3], int num_points) {
-    // retorna pontos do casco convexo
-    if (num_points < 3 || points == NULL) {
-        return NULL;
+Point3 *quickhull(Point3 *points, int num_points, int *out_count)
+{
+    int min_x = 0, max_x = 0;
+    for (int i = 1; i < num_points; i++)
+    {
+        if (points[i][0] < points[min_x][0])
+            min_x = i;
+        if (points[i][0] > points[max_x][0])
+            max_x = i;
     }
 
-    float* feixo_convexo[3] = malloc(15 * sizeof *feixo_convexo); // aloca espaço para 15 pontos
+    int count1, count2;
+    Point3 *top = pontos_acima(points[min_x], points[max_x], points, num_points, &count1);
+    Point3 *bottom = pontos_abaixo(points[min_x], points[max_x], points, num_points, &count2);
 
-    // encontrar pontos com x mínimo e máximo
-    float ponto_esq[3][1];
-    ponto_esq[0][0] = points[0][0];
-    ponto_esq[1][0] = points[0][1];
-    ponto_esq[2][0] = points[0][2];
-    float ponto_dir[3][1];
-    ponto_dir[0][0] = points[0][0];
-    ponto_dir[1][0] = points[0][1];
-    ponto_dir[2][0] = points[0][2];
+    int out_count1, out_count2;
+    Point3 *feixo_top = quickhull2(points[min_x], points[max_x], top, count1, 1, &out_count1);
+    Point3 *feixo_bottom = quickhull2(points[min_x], points[max_x], bottom, count2, -1, &out_count2);
 
-    for (int i = 0; i < num_points; i++) {
-        if (points[i][0] < ponto_esq[0][0]) {
-            ponto_esq[0][0] = points[i][0];
-            ponto_esq[1][0] = points[i][1];
-            ponto_esq[2][0] = points[i][2];
-        }
-        if (points[i][0] > ponto_dir[0][0]) {
-            ponto_dir[0][0] = points[i][0];
-            ponto_dir[1][0] = points[i][1];
-            ponto_dir[2][0] = points[i][2];
-        }
-    }
+    Point3 *feixo_convexo = malloc(15 * sizeof(Point3));
+    int c = 0;
+    for (int i = 0; i < out_count1; i++)
+        memcpy(feixo_convexo[c++], feixo_top[i], sizeof(Point3));
+    memcpy(feixo_convexo[c++], points[max_x], sizeof(Point3));
+    for (int i = 0; i < out_count2; i++)
+        memcpy(feixo_convexo[c++], feixo_bottom[i], sizeof(Point3));
+    memcpy(feixo_convexo[c++], points[min_x], sizeof(Point3));
 
-    // remover ponto_esq e ponto_dir de points
-    float (*resto_pontos)[3] = malloc(15 * sizeof *resto_pontos);
-    int count_resto = 0;
-    for (int i = 0; i < num_points; i++) {
-        if ((points[i][0] != ponto_esq[0][0] || points[i][1] != ponto_esq[1][0]) &&
-            (points[i][0] != ponto_dir[0][0] || points[i][1] != ponto_dir[1][0])) {
-            resto_pontos[count_resto][0] = points[i][0];
-            resto_pontos[count_resto][1] = points[i][1];
-            resto_pontos[count_resto][2] = points[i][2];
-            count_resto++;
-        }
-    }
+    *out_count = c;
 
-    float* acima = pontos_acima(ponto_esq[0], ponto_dir[0], resto_pontos, count_resto);
-    float* abaixo = pontos_abaixo(ponto_esq[0], ponto_dir[0], resto_pontos, count_resto);
-
-    float* feixo1[3] = quickhull2(ponto_esq[0], ponto_dir[0], acima, count_resto, 1);
-    float* feixo2[3] = quickhull2(ponto_dir[0], ponto_esq[0], abaixo, count_resto, -1);
-
-    // combinar ponto_esq + feixo1 + ponto_dir + feixo2
-    int count_feixo = 0;
-    feixo_convexo[count_feixo][0] = ponto_esq[0][0];
-    feixo_convexo[count_feixo][1] = ponto_esq[1][0];
-    feixo_convexo[count_feixo][2] = ponto_esq[2][0];
-    count_feixo++;
-
-    if (feixo1 != NULL) {
-        for (int i = 0; i < 15; i++) {
-            if (feixo1[i][0] == 0 && feixo1[i][1] == 0) break;
-            feixo_convexo[count_feixo][0] = feixo1[i][0];
-            feixo_convexo[count_feixo][1] = feixo1[i][1];
-            feixo_convexo[count_feixo][2] = feixo1[i][2];
-            count_feixo++;
-        }
-        free(feixo1);
-    }
-
-    feixo_convexo[count_feixo][0] = ponto_dir[0][0];
-    feixo_convexo[count_feixo][1] = ponto_dir[1][0];
-    feixo_convexo[count_feixo][2] = ponto_dir[2][0];
-    count_feixo++;
-
-    if (feixo2 != NULL) {
-        for (int i = 0; i < 15; i++) {
-            if (feixo2[i][0] == 0 && feixo2[i][1] == 0) break;
-            feixo_convexo[count_feixo][0] = feixo2[i][0];
-            feixo_convexo[count_feixo][1] = feixo2[i][1];
-            feixo_convexo[count_feixo][2] = feixo2[i][2];
-            count_feixo++;
-        }
-        free(feixo2);
-    }
-
-    free(resto_pontos);
-    free(acima);
-    free(abaixo);
+    free(top);
+    free(bottom);
+    free(feixo_top);
+    free(feixo_bottom);
 
     return feixo_convexo;
 }

@@ -1,11 +1,12 @@
 #ifndef OPERATIONS_H
 #define OPERATIONS_H
-
+typedef float Point3[3];
 void translate(float (*points)[3], int num_points, float xt, float yt);
 void rotate(float (*points)[3], int num_points, double angle, float xt, float yt);
 void escala(float (*points)[3],float (*originalPoints)[3], int num_points,float xf,float yf,float sx,float sy);
 void cisalhamento_h(float (*points)[3], float (*originalPoints)[3], int num_points, float x, float y, float shx);
 void cisalhamento_v(float (*points)[3], float (*originalPoints)[3], int num_points, float x, float y, float shy);
 void reflexao(float (*points)[3], int num_points, float cx, float cy, int tipo);
+Point3 *quickhull(Point3 *points, int num_points, int *out_count);
 
 #endif
