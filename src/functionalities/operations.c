@@ -1,5 +1,7 @@
 
 #include "matrix.h"
+#include "operations.h"
+
 #include <math.h>
 #include <stdlib.h>
 #include "shape.h"
@@ -243,4 +245,176 @@ void reflexao(float (*points)[3], int num_points, float cx, float cy, int tipo)
         points[i][0] = result[0][0];
         points[i][1] = result[1][0];
     }
+}
+
+// Funções do quickhull, sempre que adicionar um ponto ao polígono convexo,
+// sempre colocar no sentido horário
+
+float distancia(Point3 p1, Point3 p2, Point3 p3)
+{
+    float a = p1[1] - p2[1];
+    float b = p2[0] - p1[0];
+    float c = p1[0] * p2[1] - p2[0] * p1[1];
+    return fabs(a * p3[0] + b * p3[1] + c) / sqrt(a * a + b * b);
+}
+
+Point3 *pontos_acima(Point3 p1, Point3 p2, Point3 *points, int num_points, int *out_count)
+{
+    Point3 *acima = malloc(15 * sizeof(Point3));
+    int count = 0;
+
+    for (int i = 0; i < num_points; i++)
+    {
+        if (points[i][2] == 1)
+        {
+            float d = (p2[0] - p1[0]) * (points[i][1] - p1[1]) - (p2[1] - p1[1]) * (points[i][0] - p1[0]);
+            if (d > 0)
+            {
+                memcpy(acima[count++], points[i], sizeof(Point3));
+            }
+        }
+    }
+
+    *out_count = count;
+    return acima;
+}
+
+Point3 *pontos_abaixo(Point3 p1, Point3 p2, Point3 *points, int num_points, int *out_count)
+{
+    Point3 *abaixo = malloc(15 * sizeof(Point3));
+    int count = 0;
+
+    for (int i = 0; i < num_points; i++)
+    {
+        if (points[i][2] == 1)
+        {
+            float d = (p2[0] - p1[0]) * (points[i][1] - p1[1]) - (p2[1] - p1[1]) * (points[i][0] - p1[0]);
+            if (d < 0)
+            {
+                memcpy(abaixo[count++], points[i], sizeof(Point3));
+            }
+        }
+    }
+
+    *out_count = count;
+    return abaixo;
+}
+
+Point3 *quickhull2(Point3 p1, Point3 p2, Point3 *points, int num_points, int lado, int *out_count)
+{
+    Point3 *feixo_convexo = malloc(15 * sizeof(Point3));
+    int count_feixo = 0;
+
+    if (num_points == 0 || points == NULL)
+    {
+        *out_count = 0;
+        return feixo_convexo;
+    }
+
+    // ponto mais distante da linha
+    float max_dist = -1;
+    int idx = -1;
+    for (int i = 0; i < num_points; i++)
+    {
+        if (points[i][2] == 1)
+        {
+            float d = distancia(p1, p2, points[i]);
+            if (d > max_dist)
+            {
+                max_dist = d;
+                idx = i;
+            }
+        }
+    }
+
+    Point3 far;
+    memcpy(far, points[idx], sizeof(Point3));
+
+    // criar resto dos pontos sem ponto mais distante
+    Point3 resto[15];
+    int count_resto = 0;
+    for (int i = 0; i < num_points; i++)
+    {
+        if (i != idx && points[i][2] == 1) // só visíveis
+        {
+            memcpy(resto[count_resto++], points[i], sizeof(Point3));
+        }
+    }
+
+    int count1, count2;
+    Point3 *set1;
+    Point3 *set2;
+
+    if (lado == 1)
+    {
+        set1 = pontos_acima(p1, far, resto, count_resto, &count1);
+        set2 = pontos_acima(far, p2, resto, count_resto, &count2);
+    }
+    else
+    {
+        set1 = pontos_abaixo(p1, far, resto, count_resto, &count1);
+        set2 = pontos_abaixo(far, p2, resto, count_resto, &count2);
+    }
+
+    int out1_count, out2_count;
+    Point3 *feixo1 = quickhull2(p1, far, set1, count1, lado, &out1_count);
+    Point3 *feixo2 = quickhull2(far, p2, set2, count2, lado, &out2_count);
+
+    // combinar feixo1 + ponto mais distante + feixo2
+    for (int i = 0; i < out1_count; i++)
+        memcpy(feixo_convexo[count_feixo++], feixo1[i], sizeof(Point3));
+    memcpy(feixo_convexo[count_feixo++], far, sizeof(Point3));
+    for (int i = 0; i < out2_count; i++)
+        memcpy(feixo_convexo[count_feixo++], feixo2[i], sizeof(Point3));
+
+    *out_count = count_feixo;
+
+    free(set1);
+    free(set2);
+    free(feixo1);
+    free(feixo2);
+
+    return feixo_convexo;
+}
+
+Point3 *quickhull(Point3 *points, int num_points, int *out_count)
+{
+    int min_x = 0, max_x = 0;
+    for (int i = 1; i < num_points; i++)
+    {
+        if (points[i][2] == 1) // leva em consideração apenas pontos visíveis
+        {
+
+            if (points[i][0] < points[min_x][0])
+                min_x = i;
+            if (points[i][0] > points[max_x][0])
+                max_x = i;
+        }
+    }
+
+    int count1, count2;
+    Point3 *top = pontos_acima(points[min_x], points[max_x], points, num_points, &count1);
+    Point3 *bottom = pontos_abaixo(points[min_x], points[max_x], points, num_points, &count2);
+
+    int out_count1, out_count2;
+    Point3 *feixo_top = quickhull2(points[min_x], points[max_x], top, count1, 1, &out_count1);
+    Point3 *feixo_bottom = quickhull2(points[min_x], points[max_x], bottom, count2, -1, &out_count2);
+
+    Point3 *feixo_convexo = malloc(15 * sizeof(Point3));
+    int c = 0;
+    for (int i = 0; i < out_count1; i++)
+        memcpy(feixo_convexo[c++], feixo_top[i], sizeof(Point3));
+    memcpy(feixo_convexo[c++], points[max_x], sizeof(Point3));
+    for (int i = 0; i < out_count2; i++)
+        memcpy(feixo_convexo[c++], feixo_bottom[i], sizeof(Point3));
+    memcpy(feixo_convexo[c++], points[min_x], sizeof(Point3));
+
+    *out_count = c;
+
+    free(top);
+    free(bottom);
+    free(feixo_top);
+    free(feixo_bottom);
+
+    return feixo_convexo;
 }

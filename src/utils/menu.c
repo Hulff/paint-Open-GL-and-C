@@ -44,6 +44,7 @@ void keyBindsUI()
     printf("Pressione 'l' para criar um segmento de reta.\n");
     printf("Pressione 'k' para iniciar criacao livre.\n");
     printf("Pressione 'j' para iniciar criacao livre com figura preenchida.\n");
+    printf("Pressione 'q' para aplicar o quickhull.\n");
     printf("Pressione 't' para transladar uma figura.\n");
     printf("Pressione 'r' para rotacionar uma figura.\n");
     printf("Pressione 'e' para escala uma figura.\n");
@@ -55,9 +56,6 @@ void keyBindsUI()
     printf("Pressione 'x' para apagar a figura selecionada.\n");
     printf("Pressione 'd' para salvar a figura atual.\n");
     printf("Pressione 'a' para animar o desenho\n");
-
-    printf("############################################\n");
-    printf("Pressione 'q' voltar ao inicio.\n");
     printf("############################################\n");
 
     while (1)
@@ -109,22 +107,22 @@ void programUI()
 
 {
     clearScreen();
-    printf("Controles dentro do programa:\n");
     printf("############################################\n");
     printf("Pressione 'p' para criar um ponto.\n");
     printf("Pressione 'l' para criar um segmento de reta.\n");
     printf("Pressione 'k' para iniciar criacao livre.\n");
     printf("Pressione 'j' para iniciar criacao livre com figura preenchida.\n");
+    printf("Pressione 'q' para aplicar o quickhull.\n");
     printf("Pressione 't' para transladar uma figura.\n");
     printf("Pressione 'r' para rotacionar uma figura.\n");
     printf("Pressione 'e' para escala uma figura.\n");
     printf("Pressione 'i' para Reflexao em uma figura.\n");
     printf("Pressione 'z' para cisalhar uma figura.\n");
+    printf("Pressione 'i' para reflexao de uma figura.\n");
     printf("Pressione 'c' para escolher a cor da figura selecionada figura.\n");
     printf("Pressione 's' para selecionar uma figura.\n");
-    printf("Pressione 'x' para apagar a figura selecionada.\n"); 
+    printf("Pressione 'x' para apagar a figura selecionada.\n");
     printf("Pressione 'd' para salvar a figura atual.\n");
     printf("Pressione 'a' para animar o desenho\n");
-    printf("Pressione 'q' para fechar.\n");
     printf("############################################\n");
 }
