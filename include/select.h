@@ -25,6 +25,6 @@ void initSelector(Selector *sel,int maxPos);
 void setSelectionMode(Selector *sel, int active);
 void selectShape(Selector *sel, Shape **shapes, int shapeCount, float x, float y);
 void deleteSelected(Selector *sel, Shape **shapes, int *shapeCount);
-void drawSelection(const Selector *sel);
+void drawSelection(const Selector *sel,float r,float g,float b);
 
 #endif

@@ -135,7 +135,7 @@ void deleteSelected(Selector *sel, Shape **shapes, int *shapeCount)
     sel->action = ACTION_NONE;
 }
 
-void drawSelection(const Selector *sel)
+void drawSelection(const Selector *sel,float r,float g,float b)
 {
     if (!sel->selected)
     {
@@ -143,7 +143,7 @@ void drawSelection(const Selector *sel)
     }
     Shape *s = sel->selected;
 
-    glColor3f(1, 0, 0);
+    glColor3f(r, g, b);
     glLineWidth(2);
 
     glBegin(GL_LINE_LOOP);

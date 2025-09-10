@@ -18,6 +18,7 @@
 extern float r, g, b;
 extern ShapeStack *storage; // pilha global de figuras (criado na Main)
 extern Selector *selector;  // selector global (criado na Main)
+extern Selector *selectorPreQuickHull;
 
 typedef enum
 {
@@ -88,6 +89,8 @@ void resetStates()
     center_scale_y = 0;      // reseta o centro y da escala
     selectedColorPos = 0;    // reseta a posição da cor escolhida
 
+    selectorPreQuickHull->selected = NULL; // reseta seleção do poligono antes do quickhull
+
     if (beforeShearFig != NULL)
     {
         free(beforeShearFig->points);
@@ -103,7 +106,7 @@ bool stopAnimation = false;
 
 bool **directions;
 
-bool** createDirectionsVector(int n);
+bool **createDirectionsVector(int n);
 
 void animateAll();
 void updateAll(int value);
@@ -139,11 +142,38 @@ void teclado(unsigned char key, int x, int y)
             printf("Aplicando transformação QuickHull na figura selecionada\n");
             resetStates(); // resetar estados
 
+            //guarda a figura selecionada antes da conversão
+            if (selector->selected != NULL)
+            {
+                if (selectorPreQuickHull->selected != NULL)
+                {
+                    free(selectorPreQuickHull->selected->points);
+                    free(selectorPreQuickHull->selected);
+                }
+
+                selectorPreQuickHull->selected = malloc(sizeof(Shape)); 
+                if (selectorPreQuickHull->selected == NULL)
+                {
+                    perror("Erro ao alocar memória para backup");
+                    exit(1);
+                }
+
+                *selectorPreQuickHull->selected = *selector->selected;
+
+                selectorPreQuickHull->selected->points = malloc(sizeof(Point3) * selector->selected->num_points);
+                if (selectorPreQuickHull->selected->points == NULL)
+                {
+                    perror("Erro ao alocar pontos para seletor da figura antes da conversão");
+                    exit(1);
+                }
+                memcpy(selectorPreQuickHull->selected->points,
+                       selector->selected->points,
+                       sizeof(Point3) * selector->selected->num_points);
+            }
+
             int new_num_points;
             Point3 *new_points = quickhull(selector->selected->points, selector->selected->num_points, &new_num_points);
 
-
-            // Atualiza os pontos da figura selecionada
             memcpy(selector->selected->points, new_points, sizeof(Point3) * new_num_points);
             selector->selected->num_points = new_num_points;
 
@@ -249,6 +279,7 @@ void teclado(unsigned char key, int x, int y)
             currentOperation = SELECTION;
             waitingForClick = true;
             setSelectionMode(selector, 1);
+            setSelectionMode(selectorPreQuickHull, 1);
             printf("Clique na figura que deseja selecionar\n");
         }
         break;
@@ -288,20 +319,20 @@ void teclado(unsigned char key, int x, int y)
         }
         break;
     case 'a':
-        if(animationStarted){
+        if (animationStarted)
+        {
             stopAnimation = true;
             break;
         }
 
-      //  resetStates();
+        //  resetStates();
 
-       // animationStarted = true;
+        // animationStarted = true;
 
-       // directions = createDirectionsVector(storage->top);
-        
-       // glutTimerFunc(16, updateAll, 0);
+        // directions = createDirectionsVector(storage->top);
+
+        // glutTimerFunc(16, updateAll, 0);
     }
-
 
     glutPostRedisplay();
 }
@@ -756,10 +787,12 @@ void mouseWheel(int wheel, int direction, int x, int y)
 
 float **limits;
 
-bool** createDirectionsVector(int n){
+bool **createDirectionsVector(int n)
+{
     bool **directions = malloc(n * sizeof(bool *));
 
-    for (int i = 0; i < n; i++){
+    for (int i = 0; i < n; i++)
+    {
         directions[i] = malloc(2 * sizeof(bool));
 
         directions[i][0] = true;
@@ -777,8 +810,9 @@ bool** createDirectionsVector(int n){
 //     return limits;
 // }
 
-void animateAll(){
-    Shape* s;
+void animateAll()
+{
+    Shape *s;
 
     // for(int i = 0; i < storage->top; i++){
     //     s = storage->items[i];
@@ -803,30 +837,43 @@ void animateAll(){
     //     limits[i][1] = 400 - (hy - ly);
     // }
 
-    for(int i = 0; i < storage->top; i++){
+    for (int i = 0; i < storage->top; i++)
+    {
         s = storage->items[i];
 
         float min_x = s->points[0][0], max_x = s->points[0][0];
         float min_y = s->points[0][1], max_y = s->points[0][1];
 
-        for (int j = 1; j < s->num_points; j++) {
-            if (s->points[j][2] != 1) continue;
-            if (s->points[j][0] < min_x) min_x = s->points[j][0];
-            if (s->points[j][0] > max_x) max_x = s->points[j][0];
-            if (s->points[j][1] < min_y) min_y = s->points[j][1];
-            if (s->points[j][1] > max_y) max_y = s->points[j][1];
+        for (int j = 1; j < s->num_points; j++)
+        {
+            if (s->points[j][2] != 1)
+                continue;
+            if (s->points[j][0] < min_x)
+                min_x = s->points[j][0];
+            if (s->points[j][0] > max_x)
+                max_x = s->points[j][0];
+            if (s->points[j][1] < min_y)
+                min_y = s->points[j][1];
+            if (s->points[j][1] > max_y)
+                max_y = s->points[j][1];
         }
 
-        if (min_x <= 0) directions[i][0] = true;
-        if (max_x >= 600) directions[i][0] = false;
-        if (min_y <= 0) directions[i][1] = true;
-        if (max_y >= 400) directions[i][1] = false;
+        if (min_x <= 0)
+            directions[i][0] = true;
+        if (max_x >= 600)
+            directions[i][0] = false;
+        if (min_y <= 0)
+            directions[i][1] = true;
+        if (max_y >= 400)
+            directions[i][1] = false;
 
         float x = 5;
-        if(!directions[i][0]) x = -5;
+        if (!directions[i][0])
+            x = -5;
 
         float y = 5;
-        if(!directions[i][1]) y = -5;
+        if (!directions[i][1])
+            y = -5;
 
         translate(s->points, s->num_points, x, y);
     }
@@ -834,8 +881,9 @@ void animateAll(){
     glutPostRedisplay();
 }
 
-void updateAll(int value){
-    if(stopAnimation)
+void updateAll(int value)
+{
+    if (stopAnimation)
     {
         animationStarted = false;
         stopAnimation = false;

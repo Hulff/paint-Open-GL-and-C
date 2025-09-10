@@ -12,6 +12,8 @@
 float r = 1.0f, g = 1.0f, b = 1.0f;
 ShapeStack *storage;
 Selector *selector;
+//
+Selector *selectorPreQuickHull;
 
 void init(void)
 {
@@ -84,7 +86,11 @@ void display()
     }
     if (selector->selected != NULL)
     {
-        drawSelection(selector);
+        drawSelection(selector,1,0,0);
+    }
+    if (selectorPreQuickHull->selected != NULL)
+    {
+        drawSelection(selectorPreQuickHull,0,0,1); // desenha o poligono antes de ser aplicado o quickhull
     }
     glFlush();
 }
@@ -96,7 +102,9 @@ int main(int argc, char **argv)
     storage = criarPilha(maxFig); // pilha de tamanho fixo, 10 figuras no maximo
 
     selector = malloc(sizeof(Selector));
+    selectorPreQuickHull = malloc(sizeof(Selector));
     initSelector(selector, maxFig); // incializa os valores para o selector
+    initSelector(selectorPreQuickHull, maxFig); // inicializa os valores para o selectorPreQuickHull
 
     while (control)
     {
