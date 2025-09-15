@@ -415,7 +415,9 @@ Point3 *quickhull(Point3 *points, int num_points, int *out_count)
     free(feixo_top);
     free(feixo_bottom);
 
-    // --- Ordenar o casco convexo antes de retornar ---
+
+
+    // calcular centro do feixo convexo
     float cx = 0, cy = 0;
     for (int i = 0; i < *out_count; i++)
     {
@@ -425,6 +427,7 @@ Point3 *quickhull(Point3 *points, int num_points, int *out_count)
     cx /= *out_count;
     cy /= *out_count;
 
+    // ordernar pelo ângulo em relação ao centro no sentido anti-horário
     for (int i = 0; i < *out_count - 1; i++)
     {
         for (int j = i + 1; j < *out_count; j++)
